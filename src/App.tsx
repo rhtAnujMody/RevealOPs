@@ -4,7 +4,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <>hi</>,
+      element: <>development</>,
     },
   ]);
   return (
