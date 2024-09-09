@@ -13,7 +13,7 @@ export default function AppButton({
       {isLoading ? (
         <ReloadIcon className="animate-spin" />
       ) : (
-        <Button>{label}</Button>
+        <Button isLoading={isLoading}>{label}</Button>
       )}
     </div>
   );
