@@ -22,7 +22,6 @@ function App() {
         <Route path="customer-management" element={<Dashboard />} />
         <Route path="sow-management" element={<Dashboard />} />
         <Route path="project-management" element={<Dashboard />} />
-        <Route path="project-allocation" element={<Dashboard />} />
         <Route path="employee-management" element={<Dashboard />} />
       </Route>
     </Routes>

@@ -21,10 +21,6 @@ export default function SideBar() {
       header: "Project Management",
     },
     {
-      link: "/project-allocation",
-      header: "Project Allocation",
-    },
-    {
       link: "/employee-management",
       header: "Employee Management",
     },
@@ -32,18 +28,18 @@ export default function SideBar() {
 
   return (
     <div className="flex flex-1  flex-col">
-      <div className="pt-6 pl-6 ">
+      <div className="pt-6 pl-5 ">
         <img src={logo} className="h-10" />
       </div>
-      <div className="mt-10 ml-6">
-        <ul>
+      <div className="mt-10 ml-5 mr-5">
+        <ul className="rounded-lg">
           {links.map((link) => (
             <li key={link.header}>
               <NavLink
                 to={link.link}
                 className={({ isActive }) =>
                   cn(
-                    "flex py-4 px-2 text-lg font-medium",
+                    "flex py-4 px-2 text-md font-medium rounded-lg",
                     isActive && "bg-[#F0F2F5]"
                   )
                 }
