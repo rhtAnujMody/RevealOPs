@@ -3,6 +3,7 @@ import Layout from "./components/common/Layout";
 import Dashboard from "./screens/Dashboard";
 import Login from "./screens/Login";
 import useNavigationStore from "./stores/useNavigationStore";
+import ProjectDetails from "./screens/ProjectDetails";
 
 function App() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ function App() {
         <Route path="customer-management" element={<Dashboard />} />
         <Route path="sow-management" element={<Dashboard />} />
         <Route path="project-management" element={<Dashboard />} />
+        <Route path="project-details" element={<ProjectDetails />} />
         <Route path="employee-management" element={<Dashboard />} />
       </Route>
     </Routes>

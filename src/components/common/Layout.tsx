@@ -16,7 +16,7 @@ const Layout = () => {
       <div className="flex basis-1/5">
         <SideBar />
       </div>
-      <div className="flex flex-1  bg-red-200">
+      <div className="flex flex-1 ">
         <Outlet /> {/* Renders the nested route content */}
       </div>
     </div>
