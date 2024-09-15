@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import App from "./App";
-import useGlobalStore from "./stores/useGlobalStore";
 import { TGlobal } from "./lib/model";
+import useGlobalStore from "./stores/useGlobalStore";
 
 export default function AppContent() {
   const setIsAuthenticated = useGlobalStore(

@@ -47,18 +47,26 @@ export const AppTable = <T extends object>({
                 className="cursor-pointer"
                 onClick={() => handleClick(row)}
               >
-                {Object.keys(row).map((key) => {
-                  console.log(Object.keys(row).length);
+                {(Object.keys(row) as Array<keyof T>).map((key) => {
+                  const value = row[key];
                   if (key !== "id") {
                     return (
-                      <TableCell className="text-[#637887] text-sm" key={key}>
-                        {key === "actions" ? (
-                          <div className="flex">
-                            <EditIcon className="w-5 h-5 ml-4" />
-                          </div>
-                        ) : (
-                          row[key]
-                        )}
+                      <TableCell
+                        className="text-[#637887] text-sm"
+                        key={key as string}
+                      >
+                        {
+                          key === "actions" ? (
+                            <div className="flex">
+                              <EditIcon className="w-5 h-5 ml-4" />
+                            </div>
+                          ) : // Ensure the value is a type React can render
+                          typeof value === "string" ||
+                            typeof value === "number" ||
+                            typeof value === "boolean" ? (
+                            String(value) // convert boolean/number to string to render in JSX
+                          ) : null // or handle non-renderable values, like objects
+                        }
                       </TableCell>
                     );
                   }
