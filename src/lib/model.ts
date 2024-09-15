@@ -18,18 +18,7 @@ export type TGlobal = {
 
 type TLoadingState = {
   isLoading: boolean;
-  email: string;
-  password: string;
-  emailError: string;
-  passwordError: string;
-  serverError: string;
   setLoading: (isLoading: boolean) => void;
-  setEmail: (email: React.ChangeEvent<HTMLInputElement>) => void;
-  setPassword: (password: React.ChangeEvent<HTMLInputElement>) => void;
-  setEmailError: (emailError: string) => void;
-  setPasswordError: (passwordError: string) => void;
-  setServerError: (serverError: string) => void;
-  onSubmit: () => void;
 };
 
 export interface TLogin {
@@ -50,4 +39,54 @@ export type TFetchError = {
   status?: number;
 };
 
-export type TLoginStore = {} & TLoadingState;
+export type TLoginStore = {
+  email: string;
+  password: string;
+  emailError: string;
+  passwordError: string;
+  serverError: string;
+  setEmail: (email: React.ChangeEvent<HTMLInputElement>) => void;
+  setPassword: (password: React.ChangeEvent<HTMLInputElement>) => void;
+  setEmailError: (emailError: string) => void;
+  setPasswordError: (passwordError: string) => void;
+  setServerError: (serverError: string) => void;
+  onSubmit: () => void;
+} & TLoadingState;
+
+export type TProjectStore = {
+  getAllProjects: () => void;
+  headers: Record<string, string>[];
+  data: TProjects[];
+} & TLoadingState;
+
+export type TProjectDetailsStore = {
+  id: string;
+  setId: (id: string) => void;
+  getProjectDetails: () => void;
+  data: TProjects;
+} & TLoadingState;
+
+export type TProjects = {
+  id: number;
+  customer_name: string;
+  master_project_id: string;
+  child_project_id: string;
+  project_name: string;
+  description: string;
+  project_type: string;
+  service_offering: string;
+  project_status: string;
+  customer: number;
+  sow: number;
+};
+
+export type TAppTable<T> = {
+  headers: Record<string, string>[];
+  rows: T[];
+  onClick?: (data: T) => void;
+};
+
+export type TAppHeader = {
+  header: string;
+  desc?: string;
+};

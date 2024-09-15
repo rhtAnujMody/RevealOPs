@@ -57,7 +57,6 @@ const useLoginStore = create<TLoginStore>((set, get) => ({
       setLocalStorage(constants.TOKEN, response.data?.access ?? "");
       setLocalStorage(constants.REFRESH, response.data?.refresh ?? "");
       useGlobalStore.getState().setIsAuthenticated(true);
-      // useNavigationStore.getState().navigate("/dashboard");
     } else {
       console.log("error", response.error?.error);
       set({ serverError: response.error?.error });

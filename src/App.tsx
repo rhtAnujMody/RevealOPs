@@ -2,6 +2,8 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Layout from "./components/common/Layout";
 import Dashboard from "./screens/Dashboard";
 import Login from "./screens/Login";
+import ProjectDetails from "./screens/ProjectDetails";
+import ProjectManagement from "./screens/ProjectManagement";
 import useNavigationStore from "./stores/useNavigationStore";
 
 function App() {
@@ -21,9 +23,10 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="customer-management" element={<Dashboard />} />
         <Route path="sow-management" element={<Dashboard />} />
-        <Route path="project-management" element={<Dashboard />} />
+        <Route path="project-management" element={<ProjectManagement />} />
         <Route path="project-allocation" element={<Dashboard />} />
         <Route path="employee-management" element={<Dashboard />} />
+        <Route path="projects/:projectId" element={<ProjectDetails />} />
       </Route>
     </Routes>
   );

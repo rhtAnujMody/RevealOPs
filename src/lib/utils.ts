@@ -27,3 +27,24 @@ export const setLocalStorage = (key: string, value: string) => {
 export const getLocalStorage = (key: string) => {
   return localStorage.getItem(key);
 };
+
+export const clearLocalStorage = () => {
+  return localStorage.clear();
+};
+
+export const formatDataToHeaders = <T extends object>(
+  data: T[],
+  headers: Record<string, string>[]
+): T[] => {
+  return data.map((item) => {
+    const filteredItem = {} as T;
+
+    headers.forEach(({ key }) => {
+      if (key in item) {
+        filteredItem[key as keyof T] = item[key as keyof T];
+      }
+    });
+
+    return { ...filteredItem, actions: "actions" };
+  });
+};

@@ -3,4 +3,6 @@ export default {
   TOKEN: "token",
   REFRESH: "refresh",
   IS_AUTHENTICATED: "isAuthenticated",
+  //apis
+  ALL_PROJECTS: "api/projects/",
 };
