@@ -1,3 +1,5 @@
+import { InputHTMLAttributes } from "react";
+
 // Define the type for the navigation function
 export type TNavigationFunction = (
   route: string,
@@ -54,9 +56,11 @@ export type TLoginStore = {
 } & TLoadingState;
 
 export type TProjectStore = {
-  getAllProjects: () => void;
+  search: string;
   headers: Record<string, string>[];
   data: TProjects[];
+  setSearch: (search: string) => void;
+  getAllProjects: () => void;
 } & TLoadingState;
 
 export type TProjectDetailsStore = {
@@ -84,6 +88,7 @@ export type TAppTable<T> = {
   headers: Record<string, string>[];
   rows: T[];
   onClick?: (data: T) => void;
+  onEditClick?: (data: T) => void;
 };
 
 export type TAppHeader = {

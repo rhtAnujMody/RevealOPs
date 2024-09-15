@@ -13,10 +13,16 @@ export const AppTable = <T extends object>({
   headers,
   rows,
   onClick,
+  onEditClick,
 }: TAppTable<T>) => {
   const handleClick = (data: T) => {
     if (onClick) {
       onClick(data);
+    }
+  };
+  const handleEditClick = (data: T) => {
+    if (onEditClick) {
+      onEditClick(data);
     }
   };
 
@@ -58,7 +64,13 @@ export const AppTable = <T extends object>({
                         {
                           key === "actions" ? (
                             <div className="flex">
-                              <EditIcon className="w-5 h-5 ml-4" />
+                              <EditIcon
+                                className="w-5 h-5 ml-4"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick(row);
+                                }}
+                              />
                             </div>
                           ) : // Ensure the value is a type React can render
                           typeof value === "string" ||

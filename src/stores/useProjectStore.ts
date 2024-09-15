@@ -17,10 +17,14 @@ const useProjectStore = create<TProjectStore>((set, get) => ({
     { key: "actions", value: "Actions" },
   ],
   data: [],
+  search: "",
+  setSearch: (search) => set({ search: search }),
   getAllProjects: async () => {
     set({ isLoading: true });
     const response = await apiRequest<TProjects[]>(
-      constants.ALL_PROJECTS,
+      get().search
+        ? `${constants.ALL_PROJECTS}?search=${get().search}`
+        : constants.ALL_PROJECTS,
       "GET"
     );
     if (response.ok) {
