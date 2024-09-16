@@ -9,8 +9,8 @@ const useProjectStore = create<TProjectStore>((set, get) => ({
   setLoading: (isLoading) => set({ isLoading: isLoading }),
   headers: [
     { key: "id", value: "ID" },
-    { key: "customer_name", value: "Customer Name" },
     { key: "project_name", value: "Project Name" },
+    { key: "customer_name", value: "Customer Name" },
     { key: "project_type", value: "Project Type" },
     { key: "service_offering", value: "Service Offering" },
     { key: "project_status", value: "Project Status" },

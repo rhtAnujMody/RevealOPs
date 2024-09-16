@@ -1,3 +1,5 @@
+import useGlobalStore from "@/stores/useGlobalStore";
+import useNavigationStore from "@/stores/useNavigationStore";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -47,4 +49,10 @@ export const formatDataToHeaders = <T extends object>(
 
     return { ...filteredItem, actions: "actions" };
   });
+};
+
+export const logoutUser = () => {
+  clearLocalStorage();
+  useGlobalStore.getState().setIsAuthenticated(false);
+  useNavigationStore.getState().navigate(`/`, false);
 };
