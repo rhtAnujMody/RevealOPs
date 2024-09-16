@@ -1,5 +1,3 @@
-import { InputHTMLAttributes } from "react";
-
 // Define the type for the navigation function
 export type TNavigationFunction = (
   route: string,
