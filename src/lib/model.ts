@@ -92,4 +92,5 @@ export type TAppTable<T> = {
 export type TAppHeader = {
   header: string;
   desc?: string;
+  id?:string;
 };

@@ -65,6 +65,7 @@ export const AppTable = <T extends object>({
                           key === "actions" ? (
                             <div className="flex">
                               <EditIcon
+                              id="editIcon"
                                 className="w-5 h-5 ml-4"
                                 onClick={(e) => {
                                   e.stopPropagation();

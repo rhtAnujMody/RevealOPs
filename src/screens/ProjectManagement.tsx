@@ -34,10 +34,12 @@ export default function ProjectManagement() {
     <div className="flex flex-1 gap-10">
       <div className="flex flex-1 flex-col gap-5">
         <AppHeaders
+        id="projectsTitle"
           header="Projects"
           desc="Manage all projects and their details"
         />
         <Input
+        id="search"
           placeholder="Search by name"
           className="text-sm"
           value={search}
@@ -50,6 +52,7 @@ export default function ProjectManagement() {
             <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
           </div>
         ) : data.length > 0 ? (
+          
           <AppTable
             headers={headers}
             rows={data}
@@ -57,7 +60,7 @@ export default function ProjectManagement() {
             onEditClick={handleOnEditClick}
           />
         ) : (
-          <div className="flex flex-1 items-center justify-center">
+          <div id="noProjects" className="flex flex-1 items-center justify-center">
             No Projects Found
           </div>
         )}

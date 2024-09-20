@@ -24,14 +24,19 @@ export default function ProjectDetails() {
   const DisplayProjectDetails = ({
     header,
     data,
+    titleId,
+    valueId,
   }: {
     header: string;
     data: string;
+    titleId?:string;
+    valueId?:string;
+
   }) => {
     return (
-      <div className="flex flex-1 flex-col gap-2 pb-1">
-        <span className="text-lg font-bold">{header}</span>
-        <span className="text-base text-[#637887]">{data}</span>
+      <div className="flex flex-1 flex-col gap-2 pb-1" >
+        <span className="text-lg font-bold" id={titleId}>{header}</span>
+        <span className="text-base text-[#637887]" id={valueId}>{data}</span>
       </div>
     );
   };
@@ -44,36 +49,50 @@ export default function ProjectDetails() {
         </div>
       ) : (
         <>
-          <AppHeaders header="Project Details" />
-          <div className="flex flex-1 flex-col">
-            <DisplayProjectDetails header="Name" data={data.customer_name} />
+          <AppHeaders header="Project Details" id={"projectDetailsTitle"} />
+          <div id="projectDetails" className="flex flex-1 flex-col">
+            <DisplayProjectDetails titleId="nameTitle" valueId="nameValue" header="Name" data={data.customer_name} />
             <DisplayProjectDetails
               header="Description"
               data={data.description}
+              titleId="descriptionTitle"
+              valueId="descriptionValue"
             />
             <DisplayProjectDetails
               header="Master Project Id"
               data={data.master_project_id}
+              titleId="masterTitle"
+              valueId="masterValue"
             />
             <DisplayProjectDetails
               header="Child Project Id"
               data={data.child_project_id}
+              titleId="childTitle"
+              valueId="childValue"
             />
             <DisplayProjectDetails
               header="Customer Name"
               data={data.customer_name}
+              titleId="customerTitle"
+              valueId="customerValue"
             />
             <DisplayProjectDetails
               header="Project Type"
               data={data.project_type}
+              titleId="projectTypeTitle"
+              valueId="projectTypeValue"
             />
             <DisplayProjectDetails
               header="Service Offering"
               data={data.service_offering}
+              titleId="serviceTitle"
+              valueId="serviceValue"
             />
             <DisplayProjectDetails
               header="Project Status"
               data={data.project_status}
+              titleId="statusTitle"
+              valueId="statusValue"
             />
           </div>
         </>
