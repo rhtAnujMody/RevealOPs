@@ -28,7 +28,7 @@ export default function SideBar() {
   ];
 
   return (
-    <div className="flex flex-1  flex-col">
+    <div className="flex flex-col flex-1">
       <div className="pt-6 pl-5 ">
         <img src={logo} className="h-10" />
       </div>

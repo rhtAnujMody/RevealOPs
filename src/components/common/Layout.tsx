@@ -12,12 +12,13 @@ const Layout = () => {
     return <Navigate to="/" replace />;
   }
   return (
-    <div className="flex flex-1 w-screen h-screen">
-      <div className="flex basis-1/5">
+    <div className="flex flex-1 w-screen h-screen overflow-hidden">
+      <div className="flex basis-[15%] flex-shrink-0 border-r">
         <SideBar />
       </div>
-      <div className="flex flex-1 p-10">
-        <Outlet /> {/* Renders the nested route content */}
+
+      <div className="flex flex-1 px-5 py-10">
+        <Outlet />
       </div>
     </div>
   );
