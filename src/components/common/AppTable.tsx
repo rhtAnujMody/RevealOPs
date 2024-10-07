@@ -15,8 +15,6 @@ export const AppTable = <T extends object>({
   onClick,
   onEditClick,
 }: TAppTable<T>) => {
-  console.log(rows);
-
   const handleClick = (data: T) => {
     if (onClick) {
       onClick(data);

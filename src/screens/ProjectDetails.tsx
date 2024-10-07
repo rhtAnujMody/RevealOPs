@@ -1,10 +1,10 @@
 import AppHeaders from "@/components/common/AppHeaders";
+import { AppTable } from "@/components/common/AppTable";
 import { TProjectDetailsStore } from "@/lib/model";
 import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { AppTable } from "@/components/common/AppTable";
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
@@ -117,7 +117,7 @@ export default function ProjectDetails() {
             />
           </div>
           <div>
-            <DisplayProjectDetails header="Resource  Allocation" />
+            <DisplayProjectDetails header="Resource  Allocation" data="" />
             {resourceAllocationLoading ? (
               <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
             ) : resources.length === 0 ? (

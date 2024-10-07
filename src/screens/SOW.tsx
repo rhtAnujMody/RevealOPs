@@ -1,8 +1,7 @@
 import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
-import { TProjects, TSOWStore } from "@/lib/model";
-import useNavigationStore from "@/stores/useNavigationStore";
+import { TSOW, TSOWStore } from "@/lib/model";
 import useSOWStore from "@/stores/useSOWStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
@@ -22,18 +21,22 @@ export default function SOW() {
     getAllSOW();
   }, [search]);
 
-  const handleOnClick = (data: TProjects) => {
-    useNavigationStore.getState().navigate(`/projects/${data.id}`, false);
+  const handleOnClick = (_: TSOW) => {
+    // useNavigationStore.getState().navigate(`/projects/${data.id}`, false);
   };
 
-  const handleOnEditClick = (data: TProjects) => {
-    alert("Id: " + data.id);
+  const handleOnEditClick = (_: TSOW) => {
+    // alert("Id: " + data.id);
   };
 
   return (
     <div className="flex flex-1 gap-10">
       <div className="flex flex-1 flex-col gap-5">
-        <AppHeaders header="SOW" desc="Manage all SOW and their details" />
+        <AppHeaders
+          header="SOW"
+          desc="Manage all SOW and their details"
+          id="sowTitle"
+        />
         <Input
           placeholder="Search by name"
           className="text-sm"
@@ -47,7 +50,7 @@ export default function SOW() {
             <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
           </div>
         ) : data.length > 0 ? (
-          <AppTable
+          <AppTable<TSOW>
             headers={headers}
             rows={data}
             onClick={handleOnClick}

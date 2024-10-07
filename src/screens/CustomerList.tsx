@@ -1,9 +1,8 @@
 import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
-import { TCustomerStore, TProjects } from "@/lib/model";
+import { TCustomer, TCustomerStore } from "@/lib/model";
 import useCustomerStore from "@/stores/useCustomerStore";
-import useNavigationStore from "@/stores/useNavigationStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
 
@@ -22,18 +21,19 @@ export default function CustomerList() {
     getAllCustomers();
   }, [search]);
 
-  const handleOnClick = (data: TProjects) => {
-    useNavigationStore.getState().navigate(`/projects/${data.id}`, false);
+  const handleOnClick = (_: TCustomer) => {
+    // useNavigationStore.getState().navigate(`/projects/${data.id}`, false);
   };
 
-  const handleOnEditClick = (data: TProjects) => {
-    alert("Id: " + data.id);
+  const handleOnEditClick = (_: TCustomer) => {
+    // alert("Id: " + data.id);
   };
 
   return (
     <div className="flex flex-1 gap-10">
       <div className="flex flex-1 flex-col gap-5">
         <AppHeaders
+          id="customersTitle"
           header="Customers"
           desc="Manage all customers and their details"
         />
@@ -50,7 +50,7 @@ export default function CustomerList() {
             <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
           </div>
         ) : data.length > 0 ? (
-          <AppTable
+          <AppTable<TCustomer>
             headers={headers}
             rows={data}
             onClick={handleOnClick}
