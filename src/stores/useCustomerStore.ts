@@ -8,7 +8,7 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
   isLoading: false,
   headers: [
     { key: "customer_name", value: "Customer" },
-    { key: "contact_first_name", value: "Name" },
+    { key: "contact_first_name", value: "Contact Name" },
     { key: "contact_designation", value: "Designation" },
     { key: "email_id", value: "Email ID" },
     { key: "contact_phone", value: "Contact Phone" },

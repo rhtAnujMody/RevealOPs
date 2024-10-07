@@ -38,7 +38,7 @@ export default function SOW() {
           id="sowTitle"
         />
         <Input
-          placeholder="Search by name"
+          placeholder="Search by customer name"
           className="text-sm"
           value={search}
           onChange={(value) => {

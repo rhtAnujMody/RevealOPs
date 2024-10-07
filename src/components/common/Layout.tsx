@@ -17,7 +17,7 @@ const Layout = () => {
         <SideBar />
       </div>
 
-      <div className="flex flex-1 px-5 py-10">
+      <div className="flex flex-1 p-5">
         <Outlet />
       </div>
     </div>

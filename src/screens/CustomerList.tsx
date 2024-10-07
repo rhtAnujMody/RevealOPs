@@ -38,7 +38,7 @@ export default function CustomerList() {
           desc="Manage all customers and their details"
         />
         <Input
-          placeholder="Search by name"
+          placeholder="Search by customer"
           className="text-sm"
           value={search}
           onChange={(value) => {

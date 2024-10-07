@@ -58,7 +58,7 @@ export default function ProjectDetails() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-10">
+    <div className="flex flex-1 flex-col gap-10 overflow-y-auto">
       {isLoading ? (
         <div className="flex flex-1 items-center justify-center">
           <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
