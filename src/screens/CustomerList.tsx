@@ -1,25 +1,25 @@
 import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
-import { TProjects, TProjectStore } from "@/lib/model";
+import { TCustomerStore, TProjects } from "@/lib/model";
+import useCustomerStore from "@/stores/useCustomerStore";
 import useNavigationStore from "@/stores/useNavigationStore";
-import useProjectStore from "@/stores/useProjectStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
 
-export default function ProjectManagement() {
-  const { isLoading, headers, data, search, setSearch, getAllProjects } =
-    useProjectStore((state: TProjectStore) => ({
+export default function CustomerList() {
+  const { isLoading, headers, data, search, setSearch, getAllCustomers } =
+    useCustomerStore((state: TCustomerStore) => ({
       isLoading: state.isLoading,
       data: state.data,
       headers: state.headers,
       search: state.search,
       setSearch: state.setSearch,
-      getAllProjects: state.getAllProjects,
+      getAllCustomers: state.getAllCustomers,
     }));
 
   useEffect(() => {
-    getAllProjects();
+    getAllCustomers();
   }, [search]);
 
   const handleOnClick = (data: TProjects) => {
@@ -34,12 +34,10 @@ export default function ProjectManagement() {
     <div className="flex flex-1 gap-10">
       <div className="flex flex-1 flex-col gap-5">
         <AppHeaders
-          id="projectsTitle"
-          header="Projects"
-          desc="Manage all projects and their details"
+          header="Customers"
+          desc="Manage all customers and their details"
         />
         <Input
-          id="search"
           placeholder="Search by name"
           className="text-sm"
           value={search}
@@ -59,11 +57,8 @@ export default function ProjectManagement() {
             onEditClick={handleOnEditClick}
           />
         ) : (
-          <div
-            id="noProjects"
-            className="flex flex-1 items-center justify-center"
-          >
-            No Projects Found
+          <div className="flex flex-1 items-center justify-center">
+            No Customers Found
           </div>
         )}
       </div>

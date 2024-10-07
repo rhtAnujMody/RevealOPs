@@ -47,7 +47,7 @@ export const formatDataToHeaders = <T extends object>(
       }
     });
 
-    return { ...filteredItem, actions: "actions" };
+    return { ...filteredItem };
   });
 };
 

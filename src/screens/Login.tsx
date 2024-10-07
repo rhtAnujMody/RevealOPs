@@ -39,18 +39,22 @@ function Login() {
     <div className="flex flex-1 h-screen flex-col">
       <Header />
       <div className="flex flex-1 items-center mt-[15%] flex-col">
-        <span id="signInText" className="text-2xl font-bold">Sign In</span>
-        <span id="credentials" className="text-md">Enter your email address and password</span>
+        <span id="signInText" className="text-2xl font-bold">
+          Sign In
+        </span>
+        <span id="credentials" className="text-md">
+          Enter your email address and password
+        </span>
         <div className="w-2/5 flex gap-5 flex-col mt-5">
           <Input
-          id="email"
+            id="email"
             placeholder="Email"
             onChange={setEmail}
             value={email}
             error={emailError}
           />
           <Input
-          id="password"
+            id="password"
             placeholder="Password"
             type="password"
             value={password}
@@ -58,7 +62,7 @@ function Login() {
             error={passwordError}
           />
 
-          <div  className="flex items-center justify-center flex-col">
+          <div className="flex items-center justify-center flex-col">
             {serverError && (
               <span className="p-2 text-red-500">{serverError}</span>
             )}

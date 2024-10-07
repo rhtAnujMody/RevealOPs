@@ -1,25 +1,25 @@
 import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
-import { TProjects, TProjectStore } from "@/lib/model";
+import { TProjects, TSOWStore } from "@/lib/model";
 import useNavigationStore from "@/stores/useNavigationStore";
-import useProjectStore from "@/stores/useProjectStore";
+import useSOWStore from "@/stores/useSOWStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
 
-export default function ProjectManagement() {
-  const { isLoading, headers, data, search, setSearch, getAllProjects } =
-    useProjectStore((state: TProjectStore) => ({
+export default function SOW() {
+  const { isLoading, headers, data, search, setSearch, getAllSOW } =
+    useSOWStore((state: TSOWStore) => ({
       isLoading: state.isLoading,
       data: state.data,
       headers: state.headers,
       search: state.search,
       setSearch: state.setSearch,
-      getAllProjects: state.getAllProjects,
+      getAllSOW: state.getAllSOW,
     }));
 
   useEffect(() => {
-    getAllProjects();
+    getAllSOW();
   }, [search]);
 
   const handleOnClick = (data: TProjects) => {
@@ -33,13 +33,8 @@ export default function ProjectManagement() {
   return (
     <div className="flex flex-1 gap-10">
       <div className="flex flex-1 flex-col gap-5">
-        <AppHeaders
-          id="projectsTitle"
-          header="Projects"
-          desc="Manage all projects and their details"
-        />
+        <AppHeaders header="SOW" desc="Manage all SOW and their details" />
         <Input
-          id="search"
           placeholder="Search by name"
           className="text-sm"
           value={search}
@@ -59,11 +54,8 @@ export default function ProjectManagement() {
             onEditClick={handleOnEditClick}
           />
         ) : (
-          <div
-            id="noProjects"
-            className="flex flex-1 items-center justify-center"
-          >
-            No Projects Found
+          <div className="flex flex-1 items-center justify-center">
+            No SOWs Found
           </div>
         )}
       </div>

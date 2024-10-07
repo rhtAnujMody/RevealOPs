@@ -15,6 +15,8 @@ export const AppTable = <T extends object>({
   onClick,
   onEditClick,
 }: TAppTable<T>) => {
+  console.log(rows);
+
   const handleClick = (data: T) => {
     if (onClick) {
       onClick(data);
@@ -30,13 +32,13 @@ export const AppTable = <T extends object>({
     <div className="flex w-full">
       <Table className="border">
         <TableHeader>
-          <TableRow>
+          <TableRow className="w-full">
             {headers.map((header: Record<string, string>) => {
               if (header.key !== "id") {
                 return (
                   <TableHead
                     key={header.key}
-                    className=" text-black text-normal font-semibold"
+                    className="text-black text-normal font-semibold min-w-[130px]"
                   >
                     {header.value}
                   </TableHead>
@@ -58,14 +60,13 @@ export const AppTable = <T extends object>({
                   if (key !== "id") {
                     return (
                       <TableCell
-                        className="text-[#637887] text-sm"
+                        className="text-[#637887] text-sm "
                         key={key as string}
                       >
                         {
                           key === "actions" ? (
                             <div className="flex">
                               <EditIcon
-                              id="editIcon"
                                 className="w-5 h-5 ml-4"
                                 onClick={(e) => {
                                   e.stopPropagation();
