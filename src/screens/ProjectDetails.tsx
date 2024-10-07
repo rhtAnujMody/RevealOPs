@@ -1,4 +1,5 @@
 import AppHeaders from "@/components/common/AppHeaders";
+import { AppTable } from "@/components/common/AppTable";
 import { TProjectDetailsStore } from "@/lib/model";
 import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -7,18 +8,30 @@ import { useParams } from "react-router-dom";
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
-  const { isLoading, setId, data, getProjectDetails } = useProjectDetailsStore(
-    (state: TProjectDetailsStore) => ({
-      isLoading: state.isLoading,
-      data: state.data,
-      setId: state.setId,
-      getProjectDetails: state.getProjectDetails,
-    })
-  );
+  const {
+    isLoading,
+    setId,
+    data,
+    resources,
+    resourceAllocationLoading,
+    resourceAllocationHeaders,
+    getProjectDetails,
+    getProjectAllocationDetails,
+  } = useProjectDetailsStore((state: TProjectDetailsStore) => ({
+    isLoading: state.isLoading,
+    resourceAllocationLoading: state.resourceAllocationLoading,
+    resourceAllocationHeaders: state.resourceAllocationHeaders,
+    data: state.data,
+    resources: state.resources,
+    setId: state.setId,
+    getProjectDetails: state.getProjectDetails,
+    getProjectAllocationDetails: state.getProjectAllocationDetails,
+  }));
 
   useEffect(() => {
     setId(projectId as string);
     getProjectDetails();
+    getProjectAllocationDetails();
   }, []);
 
   const DisplayProjectDetails = ({
@@ -26,7 +39,7 @@ export default function ProjectDetails() {
     data,
   }: {
     header: string;
-    data: string;
+    data?: string;
   }) => {
     return (
       <div className="flex flex-1 flex-col gap-2 pb-1">
@@ -45,7 +58,7 @@ export default function ProjectDetails() {
       ) : (
         <>
           <AppHeaders header="Project Details" />
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col ">
             <DisplayProjectDetails header="Name" data={data.customer_name} />
             <DisplayProjectDetails
               header="Description"
@@ -75,6 +88,18 @@ export default function ProjectDetails() {
               header="Project Status"
               data={data.project_status}
             />
+          </div>
+          <div>
+            <DisplayProjectDetails header="Resource  Allocation" />
+            {resourceAllocationLoading ? (
+              <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
+            ) : resources.length === 0 ? (
+              <span className="text-base text-[#637887]">
+                No Resource Allocation Found
+              </span>
+            ) : (
+              <AppTable headers={resourceAllocationHeaders} rows={resources} />
+            )}
           </div>
         </>
       )}

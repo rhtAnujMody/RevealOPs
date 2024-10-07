@@ -5,4 +5,7 @@ export default {
   IS_AUTHENTICATED: "isAuthenticated",
   //apis
   ALL_PROJECTS: "api/projects/",
+  ALL_CUSTOMERS: "api/customers/",
+  ALL_EMPLOYEES: "api/employees/",
+  ALL_SOWS: "api/sows/",
 };

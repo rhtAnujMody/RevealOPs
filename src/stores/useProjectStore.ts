@@ -14,7 +14,6 @@ const useProjectStore = create<TProjectStore>((set, get) => ({
     { key: "project_type", value: "Project Type" },
     { key: "service_offering", value: "Service Offering" },
     { key: "project_status", value: "Project Status" },
-    { key: "actions", value: "Actions" },
   ],
   data: [],
   search: "",
