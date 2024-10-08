@@ -30,7 +30,7 @@ export default function Dashboard() {
           <SupersetDashboard
             dashboardTitle="My Dashboard"
             supersetUrl={supersetConfig.supersetUrl}
-            dashboardId={"fac366e8-211c-4a38-bc77-64084a34d027"}
+            dashboardId={supersetConfig.dashboardId}
             username={supersetConfig.username}
             password={supersetConfig.password}
             guestUsername={supersetConfig.guestUsername}
