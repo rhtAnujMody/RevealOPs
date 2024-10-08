@@ -30,7 +30,7 @@ export default function CustomerList() {
   };
 
   return (
-    <div className="flex flex-1 gap-10">
+    <div className="flex flex-1 gap-10 overflow-y-auto">
       <div className="flex flex-1 flex-col gap-5">
         <AppHeaders
           id="customersTitle"
