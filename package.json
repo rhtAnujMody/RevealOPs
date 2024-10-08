@@ -16,14 +16,16 @@
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
+    "@superset-ui/embedded-sdk": "^0.1.2",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "date-fns": "^4.1.0",
+    "lucide-react": "^0.383.0",
     "react": "^18.3.1",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "zustand": "^4.5.5",
-    "lucide-react": "^0.383.0"
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
