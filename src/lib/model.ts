@@ -191,3 +191,14 @@ export type TEmployee = {
   reporting_to: number;
   projects: number[];
 };
+
+export interface SupersetDashboardProps {
+  supersetUrl: string;
+  dashboardId: string;
+  username: string;
+  password: string;
+  guestUsername: string;
+  guestFirstName: string;
+  guestLastName: string;
+  dashboardTitle: string;
+}

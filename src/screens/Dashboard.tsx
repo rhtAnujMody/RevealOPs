@@ -1,7 +1,6 @@
-import { FC } from "react";
+import AppHeaders from "@/components/common/AppHeaders";
 import SupersetDashboard from "@/components/SupersetDashboard";
 import { supersetConfig } from "@/lib/envConfig";
-import AppHeaders from "@/components/common/AppHeaders";
 
 export default function Dashboard() {
   //   return <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>

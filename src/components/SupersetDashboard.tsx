@@ -1,8 +1,6 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import { embedDashboard } from "@superset-ui/embedded-sdk";
+import axios from 'axios';
+import { useEffect, useRef } from 'react';
 
 interface SupersetDashboardProps {
   supersetUrl: string;
