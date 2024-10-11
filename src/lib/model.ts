@@ -209,6 +209,7 @@ export interface SupersetDashboardProps {
 
 export interface TimelineItem {
   id: number;
+  project_id: number;
   project_name: string;
   role: string;
   allocation_start_date: string;

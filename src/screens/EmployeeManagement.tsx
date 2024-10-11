@@ -17,6 +17,9 @@ import useEmployeeStore from "@/stores/useEmployeesStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import EmployeeTimelineModal from "./EmployeeTimelineModal";
+import { apiRequest } from "@/network/apis";
+import constants from "@/lib/constants";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function EmployeeManagement() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
@@ -30,6 +33,8 @@ export default function EmployeeManagement() {
       getEmployeeTimeline: state.getEmployeeTimeline,
     })
   );
+  const { projectId } = useParams();
+  const navigate = useNavigate();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -97,6 +102,37 @@ export default function EmployeeManagement() {
     return 0;
   });
 
+  const handleSubmit = async () => {
+    const selectedEmployees = sortedEmployees.filter(employee => checkedEmployees[employee.id]);
+
+    if (selectedEmployees.length === 0) {
+      console.error("No employees selected for allocation.");
+      return;
+    }
+
+    const payload = selectedEmployees.map(employee => ({
+      employee_id: employee.id,
+      allocation_start_date: dates[employee.id]?.startDate ? dates[employee.id].startDate?.toISOString().split('T')[0] : null,
+      allocation_end_date: dates[employee.id]?.endDate ? dates[employee.id].endDate?.toISOString().split('T')[0] : null,
+      bandwidth_allocated: selectedBandwidth[employee.id] || null,
+      billable: selectedBillable[employee.id] || null,
+    }));
+
+    try {
+      // Ensure projectId is correctly inserted into the URL
+      const url = constants.CREATE_RESOURCE_ALLOCATION.replace('{project_pk}', projectId as string);
+      const response = await apiRequest(url, "POST", payload);
+      if (response.ok) {
+        console.log("Resource allocation created successfully:", response.data);
+        navigate(`/projects/${projectId}`, { replace: true });
+      } else {
+        console.error("Failed to create resource allocation:", response.error);
+      }
+    } catch (error) {
+      console.error("Error creating resource allocation:", error);
+    }
+  };
+
   return (
     <div className="flex flex-1 gap-10 overflow-y-auto">
       <div className="flex flex-1 flex-col gap-5">
@@ -108,9 +144,7 @@ export default function EmployeeManagement() {
           />
           <button
             className="bg-primary md:text-fuchsia-50 rounded-lg p-2"
-            onClick={() => {
-              // navigate("/resource-allocation", { replace: true });
-            }}
+            onClick={handleSubmit}
           >
             Submit
           </button>

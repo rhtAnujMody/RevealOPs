@@ -28,7 +28,7 @@ function App() {
         <Route path="sow-management" element={<SOW />} />
         <Route path="project-management" element={<ProjectManagement />} />
         <Route path="project-allocation" element={<Dashboard />} />
-        <Route path="resource-allocation" element={<EmployeeManagement />} />
+        <Route path="projects/:projectId/resource-allocation" element={<EmployeeManagement />} />
         <Route path="projects/:projectId" element={<ProjectDetails />} />
       </Route>
     </Routes>

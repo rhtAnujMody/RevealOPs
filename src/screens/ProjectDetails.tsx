@@ -123,7 +123,7 @@ export default function ProjectDetails() {
               <button
                 className="bg-primary md:text-fuchsia-50 rounded-lg p-2"
                 onClick={() => {
-                  navigate("/resource-allocation", { replace: true });
+                  navigate(`/projects/${projectId}/resource-allocation`, { replace: true });
                 }}
               >
                 Add Resource

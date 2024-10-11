@@ -11,4 +11,5 @@ export default {
   ALL_SOWS: "api/sows/",
   EMPLOYEE_TIMELINE: "api/employees/{employee_id}/timeline/",
   UPDATE_EMPLOYEE_TIMELINE: "api/employees/{employee_id}/projects/{project_id}/timeline/",
+  CREATE_RESOURCE_ALLOCATION : "api/projects/{project_pk}/allocations/",
 };

@@ -43,7 +43,7 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({ employeeN
       const response = await apiRequest<TimelineItem>(
         constants.UPDATE_EMPLOYEE_TIMELINE
           .replace('{employee_id}', selectedEmployeeId.toString())
-          .replace('{project_id}', project.id.toString()),
+          .replace('{project_id}', project.project_id.toString()),
         "PATCH",
         project
       );
