@@ -4,10 +4,11 @@ import { TProjectDetailsStore } from "@/lib/model";
 import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
+  const navigate = useNavigate();
   const {
     isLoading,
     setId,
@@ -117,7 +118,17 @@ export default function ProjectDetails() {
             />
           </div>
           <div>
-            <DisplayProjectDetails header="Resource  Allocation" data="" />
+            <div className="flex mb-4">
+              <DisplayProjectDetails header="Resource Allocation" data="" />
+              <button
+                className="bg-primary md:text-fuchsia-50 rounded-lg p-2"
+                onClick={() => {
+                  navigate("/resource-allocation", { replace: true });
+                }}
+              >
+                Add Resource
+              </button>
+            </div>
             {resourceAllocationLoading ? (
               <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
             ) : resources.length === 0 ? (

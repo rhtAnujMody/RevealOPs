@@ -3,9 +3,9 @@ import { TFetchError, TFetchResponse } from "@/lib/model";
 import { clearLocalStorage, getLocalStorage } from "@/lib/utils";
 import useNavigationStore from "@/stores/useNavigationStore";
 
-export async function apiRequest<TResponse, TBody = undefined>(
+export async function apiRequest<TResponse, TBody = unknown>(
   url: string,
-  method: "GET" | "POST" | "PUT" | "DELETE",
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
   body?: TBody,
   headers: Record<string, string> = { "Content-Type": "application/json" }
 ): Promise<TFetchResponse<TResponse>> {
@@ -50,6 +50,7 @@ export async function apiRequest<TResponse, TBody = undefined>(
     };
   }
 }
+
 
 // const fetch = window.fetch;
 // window.fetch = (...args) =>

@@ -9,4 +9,6 @@ export default {
   ALL_CUSTOMERS: "api/customers/",
   ALL_EMPLOYEES: "api/employees/",
   ALL_SOWS: "api/sows/",
+  EMPLOYEE_TIMELINE: "api/employees/{employee_id}/timeline/",
+  UPDATE_EMPLOYEE_TIMELINE: "api/employees/{employee_id}/projects/{project_id}/timeline/",
 };

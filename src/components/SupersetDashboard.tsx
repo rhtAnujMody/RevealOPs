@@ -88,7 +88,7 @@ const SupersetDashboard = ({
             fetchGuestToken: () => guestToken,
             dashboardUiConfig: {
               hideTitle: true,
-              hideChartControls: false,
+              hideChartControls: true,
               hideTab: false,
               filters: {
                 expanded: false,

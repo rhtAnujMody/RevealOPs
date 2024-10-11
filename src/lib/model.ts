@@ -168,7 +168,11 @@ export type TResourceAllocation = {
 
 export type TEmployeeStore = {
   getAllEmployees: () => void;
+  getEmployeeTimeline: (employeeId: number) => Promise<TimelineItem[]>;
   data: TEmployee[];
+  search: string;
+  setSearch: (search: string) => void;
+  headers: Record<string, string>[];
 } & TLoadingState;
 
 export type TEmployee = {
@@ -201,4 +205,14 @@ export interface SupersetDashboardProps {
   guestFirstName: string;
   guestLastName: string;
   dashboardTitle: string;
+}
+
+export interface TimelineItem {
+  id: number;
+  project_name: string;
+  role: string;
+  allocation_start_date: string;
+  allocation_end_date: string;
+  bandwidth_allocated: number;
+  billable: string;
 }

@@ -21,10 +21,10 @@ export default function SideBar() {
       link: "/project-management",
       header: "Project Management",
     },
-    {
-      link: "/employee-management",
-      header: "Employee Management",
-    },
+    // {
+    //   link: "/employee-management",
+    //   header: "Employee Management",
+    // },
   ];
 
   return (
