@@ -217,7 +217,7 @@ export default function ProjectDetails() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full overflow-auto">
+    <div className="flex flex-col h-full w-full overflow-auto h-screen">
       <div className="flex-1 p-6 space-y-6">
         <div className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center">

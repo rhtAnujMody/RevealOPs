@@ -215,122 +215,124 @@ export default function EmployeeManagement() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      <div className="flex-1 overflow-auto px-6 pb-6">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <Tooltip.Provider>
-            <Table className="border">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]"></TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Available Bandwidth</TableHead>
-                  <TableHead>Allocate Bandwidth</TableHead>
-                  <TableHead>Billable</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedEmployees?.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={checkedEmployees[employee.id] || false}
-                        onCheckedChange={() => handleCheckboxChange(employee.id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-between">
-                        <span>{`${employee.first_name} ${employee.last_name} (${employee.employee_id})`}</span>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEmployeeClick(employee)}
-                              className="ml-2"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Portal>
-                            <Tooltip.Content
-                              className="bg-gray-800 text-white text-xs rounded py-1 px-2 z-50"
-                              sideOffset={5}
-                            >
-                              View and edit employee's existing project allocations
-                              <Tooltip.Arrow className="fill-gray-800" />
-                            </Tooltip.Content>
-                          </Tooltip.Portal>
-                        </Tooltip.Root>
-                      </div>
-                    </TableCell>
-                    <TableCell>{employee.designation}</TableCell>
-                    <TableCell>{employee.status}</TableCell>
-                    <TableCell>
-                      <CommonDropdown
-                        items={BandwidthArray}
-                        onSelect={(value) => bandWidthHandler(employee.id, value)}
-                        selectedValue={selectedBandwidth[employee.id] || ''}
-                        placeholder="Choose an option"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <CommonDropdown
-                        items={BillableArray}
-                        onSelect={(value) => billableHandler(employee.id, value)}
-                        selectedValue={selectedBillable[employee.id] || ''}
-                        placeholder="Choose an option"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline">
-                            {dates[employee.id]?.startDate
-                              ? dates[employee.id].startDate.toLocaleDateString()
-                              : "Start Date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={dates[employee.id]?.startDate || undefined}
-                            onSelect={(date) => handleDateChange(employee.id, 'startDate', date)}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                    <TableCell>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline">
-                            {dates[employee.id]?.endDate
-                              ? dates[employee.id].endDate.toLocaleDateString()
-                              : "End Date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={dates[employee.id]?.endDate || undefined}
-                            onSelect={(date) => handleDateChange(employee.id, 'endDate', date)}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
+          <div className="overflow-x-auto">
+            <Tooltip.Provider>
+              <Table className="border w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px] sticky top-0 bg-white z-10"></TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Name</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Role</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Available Bandwidth</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Allocate Bandwidth</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Billable</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">Start Date</TableHead>
+                    <TableHead className="sticky top-0 bg-white z-10">End Date</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Tooltip.Provider>
+                </TableHeader>
+                <TableBody>
+                  {sortedEmployees?.map((employee) => (
+                    <TableRow key={employee.id}>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={checkedEmployees[employee.id] || false}
+                          onCheckedChange={() => handleCheckboxChange(employee.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-between">
+                          <span>{`${employee.first_name} ${employee.last_name} (${employee.employee_id})`}</span>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEmployeeClick(employee)}
+                                className="ml-2"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <Tooltip.Content
+                                className="bg-gray-800 text-white text-xs rounded py-1 px-2 z-50"
+                                sideOffset={5}
+                              >
+                                View and edit employee's existing project allocations
+                                <Tooltip.Arrow className="fill-gray-800" />
+                              </Tooltip.Content>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </div>
+                      </TableCell>
+                      <TableCell>{employee.designation}</TableCell>
+                      <TableCell>{employee.status}</TableCell>
+                      <TableCell>
+                        <CommonDropdown
+                          items={BandwidthArray}
+                          onSelect={(value) => bandWidthHandler(employee.id, value)}
+                          selectedValue={selectedBandwidth[employee.id] || ''}
+                          placeholder="Choose an option"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CommonDropdown
+                          items={BillableArray}
+                          onSelect={(value) => billableHandler(employee.id, value)}
+                          selectedValue={selectedBillable[employee.id] || ''}
+                          placeholder="Choose an option"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline">
+                              {dates[employee.id]?.startDate
+                                ? dates[employee.id].startDate.toLocaleDateString()
+                                : "Start Date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={dates[employee.id]?.startDate || undefined}
+                              onSelect={(date) => handleDateChange(employee.id, 'startDate', date)}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline">
+                              {dates[employee.id]?.endDate
+                                ? dates[employee.id].endDate.toLocaleDateString()
+                                : "End Date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={dates[employee.id]?.endDate || undefined}
+                              onSelect={(date) => handleDateChange(employee.id, 'endDate', date)}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Tooltip.Provider>
+          </div>
         )}
       </div>
       <EmployeeTimelineModal
