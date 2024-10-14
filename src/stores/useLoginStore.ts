@@ -4,6 +4,7 @@ import { checkIsEmpty, setLocalStorage, validateEmail } from "@/lib/utils";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
 import useGlobalStore from "./useGlobalStore";
+import useNavigationStore from "./useNavigationStore";
 
 const useLoginStore = create<TLoginStore>((set, get) => ({
   isLoading: false,
@@ -12,20 +13,12 @@ const useLoginStore = create<TLoginStore>((set, get) => ({
   emailError: "",
   passwordError: "",
   serverError: "",
-  setEmail: (email: React.ChangeEvent<HTMLInputElement>) => {
-    set({ email: email.target.value, emailError: "", serverError: "" });
-  },
-  setPassword: (password: React.ChangeEvent<HTMLInputElement>) => {
-    set({
-      password: password.target.value,
-      passwordError: "",
-      serverError: "",
-    });
-  },
-  setLoading: (isLoading) => set({ isLoading: isLoading }),
-  setEmailError: (emailError) => set({ emailError: emailError }),
-  setPasswordError: (passwordError) => set({ passwordError: passwordError }),
-  setServerError: (serverError) => set({ serverError: serverError }),
+  setLoading: (isLoading) => set({ isLoading }),
+  setEmail: (email: string) => set({ email }),
+  setPassword: (password: string) => set({ password }),
+  setEmailError: (emailError) => set({ emailError }),
+  setPasswordError: (passwordError) => set({ passwordError }),
+  setServerError: (serverError) => set({ serverError }),
   onSubmit: async () => {
     if (checkIsEmpty(get().email) || checkIsEmpty(get().password)) {
       set({
@@ -57,6 +50,8 @@ const useLoginStore = create<TLoginStore>((set, get) => ({
       setLocalStorage(constants.TOKEN, response.data?.access ?? "");
       setLocalStorage(constants.REFRESH, response.data?.refresh ?? "");
       useGlobalStore.getState().setIsAuthenticated(true);
+      // Clear email and password after successful login
+      set({ email: "", password: "" });
     } else {
       console.log("error", response.error?.error);
       set({ serverError: response.error?.error });

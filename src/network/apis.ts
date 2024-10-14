@@ -30,15 +30,37 @@ export async function apiRequest<TResponse, TBody = unknown>(
       clearLocalStorage();
       useNavigationStore.getState().navigate("/", true);
     }
+    console.log("response", response);
+    // Extract headers
+    const responseHeaders: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      responseHeaders[key.toLowerCase()] = value;
+    });
 
-    const responseBody = response.ok ? await response.json() : undefined;
+    // Consider 204 No Content as a successful response
+    if (response.status === 204) {
+      return { ok: true, status: response.status, headers: responseHeaders };
+    }
 
-    return {
-      data: responseBody as TResponse,
-      status: response.status,
-      ok: response.ok,
-      error: !response.ok ? await response.json() : undefined,
-    };
+    if (response.ok) {
+      const responseBody = await response.json();
+      return {
+        data: responseBody as TResponse,
+        status: response.status,
+        ok: true,
+        error: undefined,
+        headers: responseHeaders,
+      };
+    } else {
+      const errorData = await response.json();
+      return {
+        data: undefined,
+        status: response.status,
+        ok: false,
+        error: errorData,
+        headers: responseHeaders,
+      };
+    }
   } catch (error: unknown) {
     console.log("error", error);
 
@@ -47,6 +69,7 @@ export async function apiRequest<TResponse, TBody = unknown>(
       status: fetchError.status || 500,
       ok: false,
       error: fetchError.message || { error: "An unknown error occurred" },
+      headers: {},
     };
   }
 }
@@ -63,3 +86,4 @@ export async function apiRequest<TResponse, TBody = unknown>(
 //     }
 //     return result;
 //   })(args);
+

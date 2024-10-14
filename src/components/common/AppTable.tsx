@@ -1,5 +1,4 @@
 import { TAppTable } from "@/lib/model";
-import { EditIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,20 +8,21 @@ import {
   TableRow,
 } from "../ui/table";
 
-export const AppTable = <T extends object>({
+const MAX_CELL_LENGTH = 20; // Adjust this value as needed
+
+const truncateText = (text: string) => {
+  if (text.length <= MAX_CELL_LENGTH) return text;
+  return `${text.substring(0, MAX_CELL_LENGTH)}...`;
+};
+
+export const AppTable = <T extends Record<string, any>>({
   headers,
   rows,
   onClick,
-  onEditClick,
 }: TAppTable<T>) => {
   const handleClick = (data: T) => {
     if (onClick) {
       onClick(data);
-    }
-  };
-  const handleEditClick = (data: T) => {
-    if (onEditClick) {
-      onEditClick(data);
     }
   };
 
@@ -31,61 +31,41 @@ export const AppTable = <T extends object>({
       <Table className="border">
         <TableHeader>
           <TableRow className="w-full">
-            {headers.map((header: Record<string, string>) => {
-              if (header.key !== "id") {
-                return (
-                  <TableHead
-                    key={header.key}
-                    className="text-black text-normal font-semibold min-w-[130px]"
-                  >
-                    {header.value}
-                  </TableHead>
-                );
-              }
-            })}
+            {headers.map((header) => (
+              <TableHead
+                key={header.key}
+                className="text-black text-normal font-semibold min-w-[130px]"
+              >
+                {header.label}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row: T, index: number) => {
-            return (
-              <TableRow
-                key={index}
-                className="cursor-pointer"
-                onClick={() => handleClick(row)}
-              >
-                {(Object.keys(row) as Array<keyof T>).map((key) => {
-                  const value = row[key];
-                  if (key !== "id") {
-                    return (
-                      <TableCell
-                        className="text-[#637887] text-sm "
-                        key={key as string}
-                      >
-                        {
-                          key === "actions" ? (
-                            <div className="flex">
-                              <EditIcon
-                                className="w-5 h-5 ml-4"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditClick(row);
-                                }}
-                              />
-                            </div>
-                          ) : // Ensure the value is a type React can render
-                          typeof value === "string" ||
-                            typeof value === "number" ||
-                            typeof value === "boolean" ? (
-                            String(value) // convert boolean/number to string to render in JSX
-                          ) : null // or handle non-renderable values, like objects
-                        }
-                      </TableCell>
-                    );
-                  }
-                })}
-              </TableRow>
-            );
-          })}
+          {rows.map((row: T, index: number) => (
+            <TableRow
+              key={index}
+              className="cursor-pointer"
+              onClick={() => handleClick(row)}
+            >
+              {headers.map((header) => (
+                <TableCell
+                  className="text-[#637887] text-sm"
+                  key={header.key}
+                >
+                  {header.key === 'actions' ? (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {row[header.key]}
+                    </div>
+                  ) : typeof row[header.key] === "string" ? (
+                    truncateText(row[header.key])
+                  ) : typeof row[header.key] === "number" || typeof row[header.key] === "boolean" ? (
+                    String(row[header.key])
+                  ) : null}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

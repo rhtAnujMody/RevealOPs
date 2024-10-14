@@ -34,20 +34,18 @@ export const clearLocalStorage = () => {
   return localStorage.clear();
 };
 
-export const formatDataToHeaders = <T extends object>(
+export const formatDataToHeaders = <T>(
   data: T[],
-  headers: Record<string, string>[]
+  headers: { key: string; value: string }[]
 ): T[] => {
   return data.map((item) => {
-    const filteredItem = {} as T;
-
-    headers.forEach(({ key }) => {
-      if (key in item) {
-        filteredItem[key as keyof T] = item[key as keyof T];
+    const formattedItem: any = {};
+    headers.forEach((header) => {
+      if (header.key in item) {
+        formattedItem[header.key] = (item as any)[header.key];
       }
     });
-
-    return { ...filteredItem };
+    return formattedItem as T;
   });
 };
 
@@ -55,4 +53,16 @@ export const logoutUser = () => {
   clearLocalStorage();
   useGlobalStore.getState().setIsAuthenticated(false);
   useNavigationStore.getState().navigate(`/`, false);
+};
+
+export const convertDaysToWeeks = (days: number): string => {
+  const weeks = Math.floor(days / 7);
+  const remainingDays = days % 7;
+  if (weeks === 0) {
+    return `${days} day${days !== 1 ? 's' : ''}`;
+  } else if (remainingDays === 0) {
+    return `${weeks} week${weeks !== 1 ? 's' : ''}`;
+  } else {
+    return `${weeks} week${weeks !== 1 ? 's' : ''} and ${remainingDays} day${remainingDays !== 1 ? 's' : ''}`;
+  }
 };

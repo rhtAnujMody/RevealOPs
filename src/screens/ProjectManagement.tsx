@@ -4,11 +4,16 @@ import { Input } from "@/components/ui/input";
 import { TProjects, TProjectStore } from "@/lib/model";
 import useNavigationStore from "@/stores/useNavigationStore";
 import useProjectStore from "@/stores/useProjectStore";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import { useEffect } from "react";
+import { PlusCircle, RefreshCw, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { toast } from 'react-hot-toast';
 
 export default function ProjectManagement() {
-  const { isLoading, headers, data, search, setSearch, getAllProjects } =
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isLoading, headers, data, search, setSearch, getAllProjects, clearSearch } =
     useProjectStore((state: TProjectStore) => ({
       isLoading: state.isLoading,
       data: state.data,
@@ -16,57 +21,111 @@ export default function ProjectManagement() {
       search: state.search,
       setSearch: state.setSearch,
       getAllProjects: state.getAllProjects,
+      clearSearch: state.clearSearch,
     }));
+
+  const [localSearch, setLocalSearch] = useState(search);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const searchValue = searchParams.get('search');
+    if (searchValue) {
+      setSearch(searchValue);
+      setLocalSearch(searchValue);
+    } else {
+      clearSearch();
+      setLocalSearch('');
+    }
+    getAllProjects();
+  }, [location.search]);
 
   useEffect(() => {
     getAllProjects();
   }, [search]);
 
   const handleOnClick = (data: TProjects) => {
-    useNavigationStore.getState().navigate(`/projects/${data.id}`, false);
+    navigate(`/projects/${data.id}`);
   };
 
   const handleOnEditClick = (data: TProjects) => {
-    alert("Id: " + data.id);
+    console.log("Edit project:", data.id);
   };
 
+  const handleAddProject = () => {
+    navigate('/projects/add');
+  };
+
+  const handleClearSearch = () => {
+    setLocalSearch("");
+    setSearch("");
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+    setSearch(value);
+  };
+
+  const formattedHeaders = headers.map(header => ({
+    key: header.key,
+    label: header.value
+  }));
+
   return (
-    <div className="flex flex-1 gap-10 overflow-y-auto">
-      <div className="flex flex-1 flex-col gap-5">
-        <AppHeaders
-          id="projectsTitle"
-          header="Projects"
-          desc="Manage all projects and their details"
-        />
+    <div className="flex flex-col h-full w-full p-6 space-y-6">
+      <div className="flex justify-between items-center w-full">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Projects</h1>
+          <p className="text-sm text-gray-500">Manage all projects and their details</p>
+        </div>
+        <Button onClick={handleAddProject} className="bg-blue-500 hover:bg-blue-600 text-white">
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Project
+        </Button>
+      </div>
+      
+      <div className="w-full max-w-md relative">
         <Input
           id="search"
-          placeholder="Search by name"
-          className="text-sm"
-          value={search}
-          onChange={(value) => {
-            setSearch(value.target.value);
-          }}
+          placeholder="Search"
+          className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={localSearch}
+          onChange={handleSearchChange}
         />
-        {isLoading ? (
-          <div className="flex flex-1 items-center justify-center">
-            <ReloadIcon className="animate-spin flex flex-1 items-center justify-center w-8 h-8" />
-          </div>
-        ) : data.length > 0 ? (
-          <AppTable
-            headers={headers}
-            rows={data}
-            onClick={handleOnClick}
-            onEditClick={handleOnEditClick}
-          />
-        ) : (
-          <div
-            id="noProjects"
-            className="flex flex-1 items-center justify-center"
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        {localSearch && (
+          <button
+            onClick={handleClearSearch}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
           >
-            No Projects Found
-          </div>
+            <X className="h-5 w-5" />
+          </button>
         )}
       </div>
+
+      {isLoading ? (
+        <div className="flex flex-1 items-center justify-center">
+          <RefreshCw className="animate-spin h-12 w-12 text-blue-500" />
+        </div>
+      ) : data.length > 0 ? (
+        <div className="flex-1 overflow-auto">
+          <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <AppTable
+                headers={formattedHeaders}
+                rows={data}
+                onClick={handleOnClick}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          id="noProjects"
+          className="flex flex-1 items-center justify-center text-gray-500 text-lg"
+        >
+          No Projects Found
+        </div>
+      )}
     </div>
   );
 }

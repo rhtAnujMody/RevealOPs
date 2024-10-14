@@ -1,6 +1,6 @@
 export default {
-  API_URL: "http://ec2-65-2-84-82.ap-south-1.compute.amazonaws.com/",
-  // API_URL:"http://ec2-52-66-181-232.ap-south-1.compute.amazonaws.com/",
+  // API_URL: "http://ec2-65-2-84-82.ap-south-1.compute.amazonaws.com/",
+  API_URL: "https://reveal-ops-prod-339068582.ap-south-1.elb.amazonaws.com/",
   TOKEN: "token",
   REFRESH: "refresh",
   IS_AUTHENTICATED: "isAuthenticated",
@@ -10,6 +10,9 @@ export default {
   ALL_EMPLOYEES: "api/employees/",
   ALL_SOWS: "api/sows/",
   EMPLOYEE_TIMELINE: "api/employees/{employee_id}/timeline/",
-  UPDATE_EMPLOYEE_TIMELINE: "api/employees/{employee_id}/projects/{project_id}/timeline/",
+  UPDATE_EMPLOYEE_TIMELINE: "api/employees/{employee_id}/projects/{project_id}/timeline/{allocation_id}/",
   CREATE_RESOURCE_ALLOCATION : "api/projects/{project_pk}/allocations/",
+  DELETE_EMPLOYEE_TIMELINE: 'api/employees/{employee_id}/projects/{project_id}/timeline/{allocation_id}/',
+  DELETE_PROJECT_ALLOCATION: 'api/projects/{project_id}/allocations/{allocation_id}/',
+  UPDATE_PROJECT_ALLOCATION: '/api/projects/{project_id}/allocations/{allocation_id}/',
 };

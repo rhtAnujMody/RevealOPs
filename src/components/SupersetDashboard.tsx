@@ -1,6 +1,6 @@
 import { embedDashboard } from "@superset-ui/embedded-sdk";
 import axios from 'axios';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface SupersetDashboardProps {
   supersetUrl: string;
@@ -21,9 +21,9 @@ const SupersetDashboard = ({
   password,
   guestUsername,
   guestFirstName,
-  guestLastName
+  guestLastName,
 }: SupersetDashboardProps) => {
-
+  const [isLoading, setIsLoading] = useState(true);
   const divRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -102,12 +102,14 @@ const SupersetDashboard = ({
           if (iframeSuperset) {
             iframeSuperset.style.width = "100%";
             iframeSuperset.style.height = "100%";
+            iframeSuperset.onload = () => setIsLoading(false);
           }
         } else {
           console.error("Mount point element not found");
         }
       } catch (error) {
         console.error("Error initializing the dashboard:", error);
+        setIsLoading(false);
       }
     };
 
@@ -115,19 +117,22 @@ const SupersetDashboard = ({
 
   }, [supersetUrl, dashboardId, username, password, guestUsername, guestFirstName, guestLastName]);
 
-  
   return (
-    <div 
-      ref={divRef}
-      title={dashboardTitle}
-      id="superset-container"
-      style={{
-        width: '100%',
-        height: '100vh',
-        overflow: 'hidden',
-        padding: '0'
-      }}
-    />
+    <div className="relative w-full h-full">
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      <div 
+        id="superset-container" 
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          visibility: isLoading ? 'hidden' : 'visible' 
+        }} 
+      />
+    </div>
   );
 };
 

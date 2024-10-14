@@ -1,6 +1,5 @@
 import constants from "@/lib/constants";
 import { TCustomer, TCustomerStore } from "@/lib/model";
-import { formatDataToHeaders } from "@/lib/utils";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
 
@@ -9,9 +8,7 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
   headers: [
     { key: "customer_name", value: "Customer" },
     { key: "contact_first_name", value: "Contact Name" },
-    { key: "contact_designation", value: "Designation" },
     { key: "email_id", value: "Email ID" },
-    { key: "contact_phone", value: "Contact Phone" },
     { key: "contract_type", value: "Type of Contract" },
     { key: "contract_start_date", value: "Start Date" },
     { key: "msa_location", value: "MSA Location" },
@@ -20,6 +17,7 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
   data: [],
   search: "",
   setSearch: (search) => set({ search: search }),
+  clearSearch: () => set({ search: "" }),
   getAllCustomers: async () => {
     set({ isLoading: true });
     const response = await apiRequest<TCustomer[]>(
@@ -31,8 +29,10 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
     if (response.ok) {
       set({
         isLoading: false,
-        data: formatDataToHeaders(response.data!, get().headers),
+        data: response.data || [],
       });
+    } else {
+      set({ isLoading: false });
     }
   },
 }));

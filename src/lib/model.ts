@@ -33,6 +33,7 @@ export type TFetchResponse<T> = {
   status: number;
   ok: boolean;
   error?: Record<string, string>;
+  headers: Record<string, string>;
 };
 export type TFetchError = {
   message: Record<string, string>;
@@ -70,44 +71,46 @@ export type TCustomerStore = {
 } & TLoadingState;
 
 export type TSOWStore = {
-  search: string;
+  isLoading: boolean;
   headers: Record<string, string>[];
   data: TSOW[];
+  search: string;
+  currentPage: number;
+  totalPages: number;
+  setLoading: (isLoading: boolean) => void;
   setSearch: (search: string) => void;
-  getAllSOW: () => void;
+  clearSearch: () => void;
+  setCurrentPage: (page: number) => void;
+  setTotalPages: (pages: number) => void;
+  getAllSOW: (page: number) => Promise<void>;
 } & TLoadingState;
 
 export type TCustomer = {
-  customer_id: number;
-  created_at: string;
-  updated_at: string;
+  customer_id: string;
   customer_name: string;
   contact_first_name: string;
   contact_last_name: string;
   contact_designation: string;
-  address: string;
   email_id: string;
   contact_phone: string;
   contract_type: string;
   contract_start_date: string;
-  contract_end_date: string;
   msa_location: string;
 };
 
 export type TSOW = {
   sow_id: number;
+  customer: number | string;
   customer_name: string;
-  duration?: number;
-  created_at: string;
-  updated_at: string;
   sow_description: string;
-  start_date: string;
-  end_date: string;
   sow_value: string;
-  business_unit: string;
+  start_date: string;
+  end_date?: string;
   customer_spoc: string;
   reveal_spoc: string;
-  customer: number;
+  business_unit: string;
+  duration: number | null;
+  contract_url?: string;
 };
 
 export type TProjectDetailsStore = {
@@ -137,10 +140,9 @@ export type TProjects = {
 };
 
 export type TAppTable<T> = {
-  headers: Record<string, string>[];
+  headers: Array<{ key: string; label: string }>;
   rows: T[];
   onClick?: (data: T) => void;
-  onEditClick?: (data: T) => void;
 };
 
 export type TAppHeader = {
@@ -152,18 +154,10 @@ export type TAppHeader = {
 export type TResourceAllocation = {
   id: number;
   employee_name: string;
-  next_available_date?: string;
-  next_availability: number;
-  bandwidth_available: number;
-  created_at: string;
-  updated_at: string;
-  role: string;
-  allocation_start_date: string;
-  allocation_end_date?: string;
-  billable: string;
-  bandwidth_allocated: number;
-  employee: number;
-  project: number;
+  allocation_percentage: number;
+  start_date: string;
+  end_date: string;
+  // ... (any other fields)
 };
 
 export type TEmployeeStore = {
@@ -217,3 +211,21 @@ export interface TimelineItem {
   bandwidth_allocated: number;
   billable: string;
 }
+
+export type TSOWDetailsStore = {
+  isLoading: boolean;
+  id: string;
+  setId: (id: string) => void;
+  setLoading: (isLoading: boolean) => void;
+  data: TSOW;
+  getSOWDetails: () => Promise<void>;
+};
+
+export type TCustomerDetailsStore = {
+  isLoading: boolean;
+  id: string;
+  setId: (id: string) => void;
+  setLoading: (isLoading: boolean) => void;
+  data: TCustomer;
+  getCustomerDetails: () => Promise<void>;
+};

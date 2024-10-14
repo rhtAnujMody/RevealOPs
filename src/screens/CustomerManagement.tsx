@@ -4,19 +4,18 @@ import { Input } from "@/components/ui/input";
 import { TCustomer, TCustomerStore } from "@/lib/model";
 import useNavigationStore from "@/stores/useNavigationStore";
 import useCustomerStore from "@/stores/useCustomerStore";
-import { RefreshCw, PlusCircle, Search, X } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { PlusCircle, RefreshCw, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import debounce from 'lodash/debounce';
-import { useLocation, useNavigate } from "react-router-dom";
 
-export default function CustomerList() {
+export default function CustomerManagement() {
   const location = useLocation();
   const { isLoading, headers, data, search, setSearch, getAllCustomers, clearSearch } =
     useCustomerStore((state: TCustomerStore) => ({
       isLoading: state.isLoading,
-      headers: state.headers,
       data: state.data,
+      headers: state.headers,
       search: state.search,
       setSearch: state.setSearch,
       getAllCustomers: state.getAllCustomers,
@@ -24,14 +23,6 @@ export default function CustomerList() {
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
-  const navigate = useNavigate();
-
-  const debouncedSetSearch = useCallback(
-    debounce((value: string) => {
-      setSearch(value);
-    }, 300),
-    []
-  );
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -50,16 +41,12 @@ export default function CustomerList() {
     getAllCustomers();
   }, [search]);
 
-  useEffect(() => {
-    setLocalSearch(search);
-  }, [search]);
-
   const handleOnClick = (customer: TCustomer) => {
-    navigate(`/customers/${customer.customer_id}`);
+    useNavigationStore.getState().navigate(`/customer/${customer.customer_id}`, false);
   };
 
   const handleAddCustomer = () => {
-    navigate('/customers/add');
+    useNavigationStore.getState().navigate('/add-customer', false);
   };
 
   const handleClearSearch = () => {
@@ -70,7 +57,7 @@ export default function CustomerList() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
-    debouncedSetSearch(value);
+    setSearch(value);
   };
 
   const formattedHeaders = headers.map(header => ({
@@ -78,16 +65,13 @@ export default function CustomerList() {
     label: header.value
   }));
 
-  const filteredData = data.map(({ contact_designation, contact_phone, ...rest }) => rest);
-
   return (
     <div className="flex flex-col h-full w-full p-6 space-y-6">
       <div className="flex justify-between items-center w-full">
-        <AppHeaders
-          id="customerTitle"
-          header="Customers"
-          desc="Manage all customers and their details"
-        />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Customers</h1>
+          <p className="text-sm text-gray-500">Manage all customers and their details</p>
+        </div>
         <Button onClick={handleAddCustomer} className="bg-blue-500 hover:bg-blue-600 text-white">
           <PlusCircle className="mr-2 h-4 w-4" /> Add Customer
         </Button>
@@ -116,13 +100,17 @@ export default function CustomerList() {
         <div className="flex flex-1 items-center justify-center">
           <RefreshCw className="animate-spin h-12 w-12 text-blue-500" />
         </div>
-      ) : filteredData.length > 0 ? (
-        <div className="w-full bg-white rounded-lg shadow overflow-hidden">
-          <AppTable
-            headers={formattedHeaders}
-            rows={filteredData}
-            onClick={handleOnClick}
-          />
+      ) : data.length > 0 ? (
+        <div className="flex-1 overflow-auto">
+          <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <AppTable
+                headers={formattedHeaders}
+                rows={data}
+                onClick={handleOnClick}
+              />
+            </div>
+          </div>
         </div>
       ) : (
         <div className="flex flex-1 items-center justify-center text-gray-500 text-lg">
