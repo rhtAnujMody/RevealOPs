@@ -1,5 +1,5 @@
 import { AppTable } from "@/components/common/AppTable";
-import { TEmployeeStore, TimelineItem, TProjectDetailsStore, TResourceAllocation } from "@/lib/model";
+import { TEmployee, TEmployeeStore, TimelineItem, TProjectDetailsStore, TResourceAllocation } from "@/lib/model";
 import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
 import { ReloadIcon, ArrowLeftIcon, FileTextIcon, PersonIcon, PlusIcon, Pencil1Icon, ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 import { apiRequest } from "@/network/apis";
 import constants from "@/lib/constants";
 import EditResourceAllocationModal from "@/components/EditResourceAllocationModal";
+import { Eye } from "lucide-react";
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -37,9 +38,16 @@ export default function ProjectDetails() {
   }));
 
   // @ts-ignore
-  const  { getEmployeeTimeline } = useEmployeeStore((state: TEmployeeStore) => ({
+  const { TEmpdata, getEmployeeTimeline } = useEmployeeStore((state: TEmployeeStore) => ({
+    TEmpdata: state.data,
     getEmployeeTimeline: state.getEmployeeTimeline,
   }));
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
+  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
+  const [selectedResource, setSelectedResource] = useState<TResourceAllocation | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -73,10 +81,18 @@ export default function ProjectDetails() {
     navigate(`/projects/${projectId}/resource-allocation`);
   };
 
-  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<TResourceAllocation | null>(null);
-  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const handleOpenTimelineModal = async (resource: TResourceAllocation) => {
+    console.log('Opening timeline modal for employee:', resource.employee);
+    setSelectedEmployeeId(resource.employee);
+    setSelectedEmployeeName(resource.employee_name || 'Employee');
+    try {
+      const timeline = await getEmployeeTimeline(resource.employee);
+      setTimelineData(timeline);
+      setIsTimelineModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching employee timeline:", error);
+    }
+  };
 
   const handleEditResource = (resource: TResourceAllocation) => {
     setSelectedResource(resource);
@@ -85,6 +101,9 @@ export default function ProjectDetails() {
 
   const handleCloseTimelineModal = () => {
     setIsTimelineModalOpen(false);
+    setSelectedEmployeeId(null);
+    setSelectedEmployeeName(null);
+    setTimelineData([]);
     setSelectedResource(null);
   };
 
@@ -178,6 +197,19 @@ export default function ProjectDetails() {
       >
         <Pencil1Icon className="w-4 h-4 mr-1" />
         Edit
+      </Button>
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log('Data passed to handleOpenTimelineModal:', resource);
+          handleOpenTimelineModal(resource);
+        }}
+        variant="outline"
+        size="sm"
+        className="flex items-center"
+      >
+        <Eye className="w-4 h-4 mr-1" />
+        View Timeline
       </Button>
       <DeleteButton
         onDelete={() => handleDeleteResource(resource)}
@@ -351,7 +383,7 @@ export default function ProjectDetails() {
                         ...resource,
                         actions: renderActionButtons(resource)
                       }))}
-                      onClick={() => {}}
+                      onClick={() => { }}
                     />
                   </div>
                   <div className="flex justify-between items-center mt-4">
@@ -385,20 +417,22 @@ export default function ProjectDetails() {
               )}
             </div>
 
-            {isTimelineModalOpen && selectedResource && (
+            {isTimelineModalOpen && selectedEmployeeId !== null && (
               // @ts-ignore
               <EmployeeTimelineModal
                 isOpen={isTimelineModalOpen}
                 onClose={handleCloseTimelineModal}
-                employeeId={selectedResource.id}
-                employeeName={selectedResource.employee_name}
+                // employeeId={selectedResource.id}
+                employeeId={selectedEmployeeId}
+                employeeName={selectedEmployeeName || ''}
+                // employeeName={selectedResource.employee_name}
                 projectId={projectId}
                 isLoading={false}
                 timelineData={timelineData}
                 onUpdateTimeline={(updatedTimeline) => setTimelineData(updatedTimeline)}
               />
             )}
-            
+
             {isEditModalOpen && selectedResource && (
               <EditResourceAllocationModal
                 isOpen={isEditModalOpen}

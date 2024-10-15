@@ -26,6 +26,9 @@ export default function ProjectManagement() {
 
   const [localSearch, setLocalSearch] = useState(search);
 
+  console.log('currentPage', currentPage)
+  console.log('totalPages', totalPages)
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchValue = searchParams.get('search');
@@ -91,7 +94,7 @@ export default function ProjectManagement() {
           <PlusCircle className="mr-2 h-4 w-4" /> Add Project
         </Button>
       </div>
-      
+
       <div className="w-full max-w-md relative">
         <Input
           id="search"

@@ -159,6 +159,7 @@ export type TAppHeader = {
 
 export type TResourceAllocation = {
   id: number;
+  employee: number;
   employee_name: string;
   allocation_percentage: number;
   start_date: string;
@@ -194,6 +195,7 @@ export type TEmployee = {
   active_status: string;
   reporting_to: number;
   projects: number[];
+  availableBandwidth: string;
 };
 
 export interface SupersetDashboardProps {
@@ -214,7 +216,7 @@ export interface TimelineItem {
   role: string;
   allocation_start_date: string | null;
   allocation_end_date: string | null;
-  bandwidth_allocated: number;
+  bandwidth_allocated: string;
   billable: string;
 }
 
