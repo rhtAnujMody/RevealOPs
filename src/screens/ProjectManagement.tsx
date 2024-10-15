@@ -1,19 +1,16 @@
-import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
 import { TProjects, TProjectStore } from "@/lib/model";
-import useNavigationStore from "@/stores/useNavigationStore";
 import useProjectStore from "@/stores/useProjectStore";
-import { PlusCircle, RefreshCw, Search, X } from "lucide-react";
+import { PlusCircle, RefreshCw, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { toast } from 'react-hot-toast';
 
 export default function ProjectManagement() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoading, headers, data, search, setSearch, getAllProjects, clearSearch } =
+  const { isLoading, headers, data, search, setSearch, getAllProjects, clearSearch, currentPage, totalPages, setCurrentPage } =
     useProjectStore((state: TProjectStore) => ({
       isLoading: state.isLoading,
       data: state.data,
@@ -22,6 +19,9 @@ export default function ProjectManagement() {
       setSearch: state.setSearch,
       getAllProjects: state.getAllProjects,
       clearSearch: state.clearSearch,
+      currentPage: state.currentPage,
+      totalPages: state.totalPages,
+      setCurrentPage: state.setCurrentPage,
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
@@ -29,6 +29,7 @@ export default function ProjectManagement() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchValue = searchParams.get('search');
+    const page = searchParams.get('page');
     if (searchValue) {
       setSearch(searchValue);
       setLocalSearch(searchValue);
@@ -36,19 +37,18 @@ export default function ProjectManagement() {
       clearSearch();
       setLocalSearch('');
     }
-    getAllProjects();
+    if (page) {
+      setCurrentPage(parseInt(page));
+    }
+    getAllProjects(currentPage);
   }, [location.search]);
 
   useEffect(() => {
-    getAllProjects();
-  }, [search]);
+    getAllProjects(currentPage);
+  }, [search, currentPage]);
 
   const handleOnClick = (data: TProjects) => {
     navigate(`/projects/${data.id}`);
-  };
-
-  const handleOnEditClick = (data: TProjects) => {
-    console.log("Edit project:", data.id);
   };
 
   const handleAddProject = () => {
@@ -58,12 +58,20 @@ export default function ProjectManagement() {
   const handleClearSearch = () => {
     setLocalSearch("");
     setSearch("");
+    setCurrentPage(1);
+    getAllProjects(1);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
     setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    getAllProjects(newPage);
   };
 
   const formattedHeaders = headers.map(header => ({
@@ -107,17 +115,42 @@ export default function ProjectManagement() {
           <RefreshCw className="animate-spin h-12 w-12 text-blue-500" />
         </div>
       ) : data.length > 0 ? (
-        <div className="flex-1 overflow-auto">
-          <div className="w-full bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <AppTable
-                headers={formattedHeaders}
-                rows={data}
-                onClick={handleOnClick}
-              />
+        <>
+          <div className="flex-1 overflow-auto">
+            <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <AppTable
+                  headers={formattedHeaders}
+                  rows={data}
+                  onClick={handleOnClick}
+                />
+              </div>
             </div>
           </div>
-        </div>
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </>
       ) : (
         <div
           id="noProjects"

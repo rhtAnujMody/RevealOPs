@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { TCustomer, TCustomerStore } from "@/lib/model";
 import useNavigationStore from "@/stores/useNavigationStore";
 import useCustomerStore from "@/stores/useCustomerStore";
-import { RefreshCw, PlusCircle, Search, X } from "lucide-react";
+import { RefreshCw, PlusCircle, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import debounce from 'lodash/debounce';
@@ -12,7 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 export default function CustomerList() {
   const location = useLocation();
-  const { isLoading, headers, data, search, setSearch, getAllCustomers, clearSearch } =
+  const { isLoading, headers, data, search, setSearch, getAllCustomers, clearSearch, currentPage, totalPages, setCurrentPage } =
     useCustomerStore((state: TCustomerStore) => ({
       isLoading: state.isLoading,
       headers: state.headers,
@@ -21,6 +21,9 @@ export default function CustomerList() {
       setSearch: state.setSearch,
       getAllCustomers: state.getAllCustomers,
       clearSearch: state.clearSearch,
+      currentPage: state.currentPage,
+      totalPages: state.totalPages,
+      setCurrentPage: state.setCurrentPage,
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
@@ -36,6 +39,7 @@ export default function CustomerList() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchValue = searchParams.get('search');
+    const page = searchParams.get('page');
     if (searchValue) {
       setSearch(searchValue);
       setLocalSearch(searchValue);
@@ -43,16 +47,15 @@ export default function CustomerList() {
       clearSearch();
       setLocalSearch('');
     }
-    getAllCustomers();
+    if (page) {
+      setCurrentPage(parseInt(page));
+    }
+    getAllCustomers(currentPage);
   }, [location.search]);
 
   useEffect(() => {
-    getAllCustomers();
-  }, [search]);
-
-  useEffect(() => {
-    setLocalSearch(search);
-  }, [search]);
+    getAllCustomers(currentPage);
+  }, [search, currentPage]);
 
   const handleOnClick = (customer: TCustomer) => {
     navigate(`/customers/${customer.customer_id}`);
@@ -65,12 +68,20 @@ export default function CustomerList() {
   const handleClearSearch = () => {
     setLocalSearch("");
     setSearch("");
+    setCurrentPage(1);
+    getAllCustomers(1);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
     debouncedSetSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    getAllCustomers(newPage);
   };
 
   const formattedHeaders = headers.map(header => ({
@@ -117,13 +128,40 @@ export default function CustomerList() {
           <RefreshCw className="animate-spin h-12 w-12 text-blue-500" />
         </div>
       ) : filteredData.length > 0 ? (
-        <div className="w-full bg-white rounded-lg shadow overflow-hidden">
-          <AppTable
-            headers={formattedHeaders}
-            rows={filteredData}
-            onClick={handleOnClick}
-          />
-        </div>
+        <>
+          <div className="flex-1 overflow-auto">
+            <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+              <AppTable
+                headers={formattedHeaders}
+                rows={filteredData}
+                onClick={handleOnClick}
+              />
+            </div>
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {currentPage || 1} of {totalPages || 1}
+            </span>
+            <Button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </>
       ) : (
         <div className="flex flex-1 items-center justify-center text-gray-500 text-lg">
           No Customers Found
