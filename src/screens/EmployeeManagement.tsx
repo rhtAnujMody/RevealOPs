@@ -336,8 +336,8 @@ export default function EmployeeManagement() {
         )}
       </div>
       <EmployeeTimelineModal
+        selectedEmployeeId={selectedEmployeeId || 0}
         employeeName={selectedEmployeeName || ''}
-        employeeId={selectedEmployeeId || 0}
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         timelineData={timelineData}
