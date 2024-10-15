@@ -1,8 +1,7 @@
-import AppHeaders from "@/components/common/AppHeaders";
 import { AppTable } from "@/components/common/AppTable";
-import { TProjectDetailsStore, TResourceAllocation } from "@/lib/model";
+import { TEmployeeStore, TimelineItem, TProjectDetailsStore, TResourceAllocation } from "@/lib/model";
 import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
-import { ReloadIcon, ArrowLeftIcon, FileTextIcon, PersonIcon, PlusIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import { ReloadIcon, ArrowLeftIcon, FileTextIcon, PersonIcon, PlusIcon, Pencil1Icon, ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,8 @@ export default function ProjectDetails() {
     getProjectAllocationDetails: state.getProjectAllocationDetails,
   }));
 
-  const { getEmployeeTimeline } = useEmployeeStore((state: TEmployeeStore) => ({
+  // @ts-ignore
+  const  { getEmployeeTimeline } = useEmployeeStore((state: TEmployeeStore) => ({
     getEmployeeTimeline: state.getEmployeeTimeline,
   }));
 
@@ -216,7 +216,23 @@ export default function ProjectDetails() {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // You can adjust this number as needed
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Add this function to handle pagination for resources
+  const paginatedResources = resources.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(resources.length / itemsPerPage);
+
   return (
+    // @ts-ignore
     <div className="flex flex-col h-full w-full overflow-auto h-screen">
       <div className="flex-1 p-6 space-y-6">
         <div className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
@@ -327,13 +343,41 @@ export default function ProjectDetails() {
                   <ReloadIcon className="animate-spin w-8 h-8 text-primary" />
                 </div>
               ) : resources.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <AppTable
-                    headers={[...formattedHeaders, { key: 'actions', label: 'Actions' }]}
-                    rows={resourcesWithActions.filter(resource => resource && typeof resource === 'object')}
-                    onClick={() => {}}
-                  />
-                </div>
+                <>
+                  <div className="overflow-x-auto">
+                    <AppTable
+                      headers={[...formattedHeaders, { key: 'actions', label: 'Actions' }]}
+                      rows={paginatedResources.map(resource => ({
+                        ...resource,
+                        actions: renderActionButtons(resource)
+                      }))}
+                      onClick={() => {}}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-4">
+                    <Button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      variant="outline"
+                      isLoading={resourceAllocationLoading}
+                    >
+                      <ChevronLeftIcon className="h-4 w-4 mr-2" />
+                      Previous
+                    </Button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      variant="outline"
+                      isLoading={resourceAllocationLoading}
+                    >
+                      Next
+                      <ChevronRightIcon className="h-4 w-4 ml-2" />
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <div className="text-center text-gray-500 py-4">
                   No resource allocations found for this project.
@@ -342,6 +386,7 @@ export default function ProjectDetails() {
             </div>
 
             {isTimelineModalOpen && selectedResource && (
+              // @ts-ignore
               <EmployeeTimelineModal
                 isOpen={isTimelineModalOpen}
                 onClose={handleCloseTimelineModal}

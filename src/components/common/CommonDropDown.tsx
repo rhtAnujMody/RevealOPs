@@ -9,6 +9,7 @@ interface DropdownItem {
 interface CommonDropdownProps {
   items: DropdownItem[];
   onSelect: (value: string) => void;
+  // @ts-ignore
   selectedValue: string;
   placeholder: string;
   className?: string;

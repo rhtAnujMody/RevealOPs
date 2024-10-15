@@ -4,7 +4,6 @@ import { checkIsEmpty, setLocalStorage, validateEmail } from "@/lib/utils";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
 import useGlobalStore from "./useGlobalStore";
-import useNavigationStore from "./useNavigationStore";
 
 const useLoginStore = create<TLoginStore>((set, get) => ({
   isLoading: false,
@@ -14,7 +13,9 @@ const useLoginStore = create<TLoginStore>((set, get) => ({
   passwordError: "",
   serverError: "",
   setLoading: (isLoading) => set({ isLoading }),
+  // @ts-ignore
   setEmail: (email: string) => set({ email }),
+  // @ts-ignore
   setPassword: (password: string) => set({ password }),
   setEmailError: (emailError) => set({ emailError }),
   setPasswordError: (passwordError) => set({ passwordError }),

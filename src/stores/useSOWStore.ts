@@ -3,8 +3,6 @@ import { TSOW, TSOWStore } from "@/lib/model";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
 
-const ITEMS_PER_PAGE = 10; // Adjust this value based on your API's pagination setup
-
 const useSOWStore = create<TSOWStore>((set, get) => ({
   isLoading: false,
   headers: [

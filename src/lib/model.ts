@@ -55,11 +55,17 @@ export type TLoginStore = {
 } & TLoadingState;
 
 export type TProjectStore = {
-  search: string;
-  headers: Record<string, string>[];
+  isLoading: boolean;
   data: TProjects[];
+  headers: any[];
+  search: string;
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: (page: number) => void;
   setSearch: (search: string) => void;
-  getAllProjects: () => void;
+  clearSearch: () => void;
+  getAllProjects: (page?: number) => Promise<void>;
+  // ... other methods
 } & TLoadingState;
 
 export type TCustomerStore = {
@@ -206,8 +212,8 @@ export interface TimelineItem {
   project_id: number;
   project_name: string;
   role: string;
-  allocation_start_date: string;
-  allocation_end_date: string;
+  allocation_start_date: string | null;
+  allocation_end_date: string | null;
   bandwidth_allocated: number;
   billable: string;
 }

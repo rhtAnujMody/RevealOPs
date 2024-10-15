@@ -34,20 +34,18 @@ export const clearLocalStorage = () => {
   return localStorage.clear();
 };
 
-export const formatDataToHeaders = <T>(
+export function formatDataToHeaders<T>(
   data: T[],
   headers: { key: string; value: string }[]
-): T[] => {
+): Record<string, string>[] {
   return data.map((item) => {
-    const formattedItem: any = {};
+    const formattedItem: Record<string, string> = {};
     headers.forEach((header) => {
-      if (header.key in item) {
-        formattedItem[header.key] = (item as any)[header.key];
-      }
+      formattedItem[header.key] = String((item as any)[header.key] ?? "");
     });
-    return formattedItem as T;
+    return formattedItem;
   });
-};
+}
 
 export const logoutUser = () => {
   clearLocalStorage();

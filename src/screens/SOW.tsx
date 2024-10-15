@@ -1,4 +1,4 @@
-import AppHeaders from "@/components/common/AppHeaders";
+
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
 import { TSOW, TSOWStore } from "@/lib/model";
@@ -7,9 +7,8 @@ import useNavigationStore from "@/stores/useNavigationStore";
 import { RefreshCw, PlusCircle, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { convertDaysToWeeks } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from 'react-hot-toast';
+
 
 export default function SOW() {
   const location = useLocation();
@@ -84,13 +83,6 @@ export default function SOW() {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     getAllSOW(newPage);
-  };
-
-  const formatDuration = (duration: number | null | undefined): string => {
-    if (duration === null || duration === undefined || duration === 0) {
-      return "-";
-    }
-    return convertDaysToWeeks(duration);
   };
 
   const formattedHeaders = headers.map(header => ({

@@ -110,6 +110,8 @@ const AddProject: React.FC = () => {
             apiErrors[key] = Array.isArray(value) ? value : [value as string];
           });
           setErrors(apiErrors);
+          
+          // Display the first error message as a toast
           const firstErrorField = Object.keys(apiErrors)[0];
           if (firstErrorField) {
             toast.error(apiErrors[firstErrorField][0]);
@@ -301,8 +303,11 @@ const AddProject: React.FC = () => {
                 name="child_project_id"
                 value={formData.child_project_id}
                 onChange={handleInputChange}
-                className="w-full"
+                className={`w-full ${errors.child_project_id && errors.child_project_id.length > 0 ? 'border-red-500' : ''}`}
               />
+              {errors.child_project_id && errors.child_project_id.map((error, index) => (
+                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+              ))}
             </div>
 
             <Button type="submit" className="w-full">Add Project</Button>

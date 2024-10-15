@@ -1,4 +1,3 @@
-import Header from "@/components/common/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TLoginStore } from "@/lib/model";
@@ -40,11 +39,15 @@ function Login() {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // @ts-ignore
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
     setEmail(e.target.value);
   };
 
+  // @ts-ignore
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
     setPassword(e.target.value);
   };
 

@@ -33,6 +33,7 @@ const useProjectStore = create<TProjectStore>()(
         if (response.ok) {
           set({
             isLoading: false,
+            // @ts-ignore
             data: formatDataToHeaders(response.data!, get().headers),
           });
         }

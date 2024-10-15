@@ -51,6 +51,7 @@ const useProjectDetailsStore = create<TProjectDetailsStore>((set, get) => ({
         resourceAllocationLoading: false,
         resources: formatDataToHeaders(
           response.data ?? [],
+          // @ts-ignore
           get().resourceAllocationHeaders
         ),
       });

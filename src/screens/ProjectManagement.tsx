@@ -55,6 +55,11 @@ export default function ProjectManagement() {
     navigate('/projects/add');
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    getAllProjects(newPage);
+  };
+
   const handleClearSearch = () => {
     setLocalSearch("");
     setSearch("");
@@ -67,11 +72,7 @@ export default function ProjectManagement() {
     setLocalSearch(value);
     setSearch(value);
     setCurrentPage(1);
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-    getAllProjects(newPage);
+    getAllProjects(1);
   };
 
   const formattedHeaders = headers.map(header => ({
