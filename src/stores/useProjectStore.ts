@@ -25,6 +25,7 @@ const useProjectStore = create<TProjectStore>()(
       setSearch: (search) => set({ search: search }),
       clearSearch: () => set({ search: "", currentPage: 1 }),
       setCurrentPage: (page: number) => set({ currentPage: page }),
+      setTotalPages: (pages: number) => set({ totalPages: pages }),
       getAllProjects: async (page: number = 1) => {
         set({ isLoading: true });
         const response = await apiRequest<TProjects[]>(
@@ -34,11 +35,12 @@ const useProjectStore = create<TProjectStore>()(
           "GET"
         );
         if (response.ok) {
+          const totalPages = parseInt(response.headers['total-pages'] || '1');
           set({
             isLoading: false,
             data: formatDataToHeaders(response.data!, get().headers),
             currentPage: page,
-            totalPages: response.totalPages || 1,
+            totalPages: totalPages || 1,
           });
         }
       },

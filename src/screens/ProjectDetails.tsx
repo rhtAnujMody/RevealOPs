@@ -249,13 +249,12 @@ export default function ProjectDetails() {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // You can adjust this number as needed
+  const [itemsPerPage] = useState(10);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Add this function to handle pagination for resources
   const paginatedResources = resources.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -265,8 +264,8 @@ export default function ProjectDetails() {
 
   return (
     // @ts-ignore
-    <div className="flex flex-col h-full w-full overflow-auto h-screen">
-      <div className="flex-1 p-6 space-y-6">
+    <div className="flex flex-1 flex-col overflow-y-auto ">
+      <div className="flex-1 space-y-6">
         <div className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center">
             <Button

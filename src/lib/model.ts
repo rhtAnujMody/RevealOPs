@@ -72,6 +72,9 @@ export type TCustomerStore = {
   search: string;
   headers: Record<string, string>[];
   data: TCustomer[];
+  currentPage: number;
+  totalPages: number;
+  setCurrentPage: (page: number) => void;
   setSearch: (search: string) => void;
   getAllCustomers: () => void;
 } & TLoadingState;

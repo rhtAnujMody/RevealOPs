@@ -17,7 +17,7 @@ const Layout = () => {
         <SideBar />
       </div>
 
-      <div className="flex flex-1x flex-grow p-6">
+      <div className="flex flex-1 p-6">
         <Outlet />
       </div>
     </div>
