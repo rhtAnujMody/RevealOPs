@@ -20,21 +20,25 @@ const useProjectStore = create<TProjectStore>()(
       ],
       data: [],
       search: "",
+      currentPage: 1,
+      totalPages: 1,
       setSearch: (search) => set({ search: search }),
-      clearSearch: () => set({ search: "" }),
-      getAllProjects: async () => {
+      clearSearch: () => set({ search: "", currentPage: 1 }),
+      setCurrentPage: (page: number) => set({ currentPage: page }),
+      getAllProjects: async (page: number = 1) => {
         set({ isLoading: true });
         const response = await apiRequest<TProjects[]>(
           get().search
-            ? `${constants.ALL_PROJECTS}?search=${get().search}`
-            : constants.ALL_PROJECTS,
+            ? `${constants.ALL_PROJECTS}?search=${get().search}&page=${page}`
+            : `${constants.ALL_PROJECTS}?page=${page}`,
           "GET"
         );
         if (response.ok) {
           set({
             isLoading: false,
-            // @ts-ignore
             data: formatDataToHeaders(response.data!, get().headers),
+            currentPage: page,
+            totalPages: response.totalPages || 1,
           });
         }
       },
