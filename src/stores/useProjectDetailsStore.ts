@@ -16,6 +16,7 @@ const useProjectDetailsStore = create<TProjectDetailsStore>((set, get) => ({
   id: "",
   resourceAllocationHeaders: [
     { key: "id", value: "ID" },
+    { key: "employee", value: "Employee" },
     { key: "employee_name", value: "Name" },
     { key: "role", value: "Role" },
     { key: "bandwidth_allocated", value: "Bandwidth Allocated" },

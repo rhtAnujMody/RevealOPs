@@ -1,6 +1,7 @@
 import constants from "@/lib/constants";
 import { TFetchError, TFetchResponse } from "@/lib/model";
 import { clearLocalStorage, getLocalStorage } from "@/lib/utils";
+import useGlobalStore from "@/stores/useGlobalStore";
 import useNavigationStore from "@/stores/useNavigationStore";
 
 export async function apiRequest<TResponse, TBody = unknown>(
@@ -28,6 +29,7 @@ export async function apiRequest<TResponse, TBody = unknown>(
 
     if (response.status === 401) {
       clearLocalStorage();
+      useGlobalStore.getState().setIsAuthenticated(false);
       useNavigationStore.getState().navigate("/", true);
     }
     console.log("response", response);
@@ -74,7 +76,6 @@ export async function apiRequest<TResponse, TBody = unknown>(
   }
 }
 
-
 // const fetch = window.fetch;
 // window.fetch = (...args) =>
 //   (async (args) => {
@@ -86,4 +87,3 @@ export async function apiRequest<TResponse, TBody = unknown>(
 //     }
 //     return result;
 //   })(args);
-

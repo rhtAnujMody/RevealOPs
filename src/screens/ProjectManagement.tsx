@@ -47,6 +47,11 @@ export default function ProjectManagement() {
     getAllProjects(currentPage);
   }, [search, currentPage]);
 
+  useEffect(() => {
+    console.log("Current page:", currentPage);
+    console.log("Total pages:", totalPages); // Check if totalPages is being set correctly
+  }, [currentPage, totalPages]);
+
   const handleOnClick = (data: TProjects) => {
     navigate(`/projects/${data.id}`);
   };
@@ -91,7 +96,7 @@ export default function ProjectManagement() {
           <PlusCircle className="mr-2 h-4 w-4" /> Add Project
         </Button>
       </div>
-      
+
       <div className="w-full max-w-md relative">
         <Input
           id="search"

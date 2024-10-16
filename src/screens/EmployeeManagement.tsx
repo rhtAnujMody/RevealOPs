@@ -1,9 +1,9 @@
-import AppHeaders from "@/components/common/AppHeaders";
 import CommonDropdown from "@/components/common/CommonDropDown";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -12,20 +12,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TEmployee, TEmployeeStore, TimelineItem } from "@/lib/model";
-import useEmployeeStore from "@/stores/useEmployeesStore";
-import { ReloadIcon, ArrowLeftIcon } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
-import EmployeeTimelineModal from "./EmployeeTimelineModal";
-import { apiRequest } from "@/network/apis";
 import constants from "@/lib/constants";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
-import toast from 'react-hot-toast';
-import { Eye } from 'lucide-react';
+import { TEmployee, TEmployeeStore, TimelineItem } from "@/lib/model";
+import { apiRequest } from "@/network/apis";
+import useEmployeeStore from "@/stores/useEmployeesStore";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Eye, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
+import { useNavigate, useParams } from "react-router-dom";
+import EmployeeTimelineModal from "./EmployeeTimelineModal";
 
 export default function EmployeeManagement() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
@@ -75,12 +72,20 @@ export default function EmployeeManagement() {
     { label: 'No', value: 'No' },
   ];
 
-  const BandwidthArray = [
-    { label: '25%', value: '25' },
-    { label: '50%', value: '50' },
-    { label: '75%', value: '75' },
-    { label: '100%', value: '100' },
-  ];
+  // const BandwidthArray = [
+  //   { label: '25%', value: '25' },
+  //   { label: '50%', value: '50' },
+  //   { label: '75%', value: '75' },
+  //   { label: '100%', value: '100' },
+  // ];
+  const getAvailableBandwidthOptions = (availableBandwidth: string) => {
+    const options = [];
+    if (availableBandwidth >= '25') options.push({ label: '25%', value: '25' });
+    if (availableBandwidth >= '50') options.push({ label: '50%', value: '50' });
+    if (availableBandwidth >= '75') options.push({ label: '75%', value: '75' });
+    if (availableBandwidth == '100' || availableBandwidth == 'On Bench') options.push({ label: '100%', value: '100' });
+    return options;
+  };
 
   const bandWidthHandler = (employeeId: number, value: string) => {
     setSelectedBandwidth((prev) => ({
@@ -111,7 +116,7 @@ export default function EmployeeManagement() {
       }));
       return false;
     }
-    
+
     setErrors(prev => ({ ...prev, [employeeId]: "" }));
     return true;
   };
@@ -275,7 +280,7 @@ export default function EmployeeManagement() {
                       <TableCell>{employee.status}</TableCell>
                       <TableCell>
                         <CommonDropdown
-                          items={BandwidthArray}
+                          items={getAvailableBandwidthOptions(employee.status)}
                           onSelect={(value) => bandWidthHandler(employee.id, value)}
                           selectedValue={selectedBandwidth[employee.id] || ''}
                           placeholder="Choose an option"
@@ -294,7 +299,7 @@ export default function EmployeeManagement() {
                           <PopoverTrigger asChild>
                             <Button variant="outline">
                               {dates[employee.id]?.startDate
-                                ? dates[employee.id].startDate.toLocaleDateString()
+                                ? dates[employee.id]?.startDate?.toLocaleDateString()
                                 : "Start Date"}
                             </Button>
                           </PopoverTrigger>
@@ -302,7 +307,7 @@ export default function EmployeeManagement() {
                             <Calendar
                               mode="single"
                               selected={dates[employee.id]?.startDate || undefined}
-                              onSelect={(date) => handleDateChange(employee.id, 'startDate', date)}
+                              onSelect={(date) => handleDateChange(employee.id, 'startDate', date || null)}
                               initialFocus
                             />
                           </PopoverContent>
@@ -313,7 +318,7 @@ export default function EmployeeManagement() {
                           <PopoverTrigger asChild>
                             <Button variant="outline">
                               {dates[employee.id]?.endDate
-                                ? dates[employee.id].endDate.toLocaleDateString()
+                                ? dates[employee.id]?.endDate?.toLocaleDateString()
                                 : "End Date"}
                             </Button>
                           </PopoverTrigger>
@@ -321,7 +326,7 @@ export default function EmployeeManagement() {
                             <Calendar
                               mode="single"
                               selected={dates[employee.id]?.endDate || undefined}
-                              onSelect={(date) => handleDateChange(employee.id, 'endDate', date)}
+                              onSelect={(date) => handleDateChange(employee.id, 'endDate', date || null)}
                               initialFocus
                             />
                           </PopoverContent>
@@ -336,8 +341,9 @@ export default function EmployeeManagement() {
         )}
       </div>
       <EmployeeTimelineModal
-        selectedEmployeeId={selectedEmployeeId || 0}
         employeeName={selectedEmployeeName || ''}
+        employeeId={selectedEmployeeId || 0}
+        selectedEmployeeId={selectedEmployeeId || 0}
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         timelineData={timelineData}

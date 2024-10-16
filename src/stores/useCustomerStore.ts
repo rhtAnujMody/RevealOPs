@@ -16,20 +16,27 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
   setLoading: (isLoading) => set({ isLoading: isLoading }),
   data: [],
   search: "",
+  currentPage: 1,
+  totalPages: 1,
   setSearch: (search) => set({ search: search }),
+  setCurrentPage: (page: number) => set({ currentPage: page }),
+  setTotalPages: (pages: number) => set({ totalPages: pages }),
   clearSearch: () => set({ search: "" }),
-  getAllCustomers: async () => {
+  getAllCustomers: async (page: number = 1) => {
     set({ isLoading: true });
     const response = await apiRequest<TCustomer[]>(
       get().search
-        ? `${constants.ALL_CUSTOMERS}?search=${get().search}`
-        : constants.ALL_CUSTOMERS,
+        ? `${constants.ALL_CUSTOMERS}?search=${get().search}&page=${page}`
+        : `${constants.ALL_CUSTOMERS}?page=${page}`,
       "GET"
     );
     if (response.ok) {
+      const totalPages = parseInt(response.headers['total-pages'] || '1');
       set({
         isLoading: false,
         data: response.data || [],
+        currentPage: page,
+        totalPages: totalPages || 1,
       });
     } else {
       set({ isLoading: false });

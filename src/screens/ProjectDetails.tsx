@@ -1,17 +1,32 @@
 import { AppTable } from "@/components/common/AppTable";
-import { TEmployeeStore, TimelineItem, TProjectDetailsStore, TResourceAllocation } from "@/lib/model";
-import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
-import { ReloadIcon, ArrowLeftIcon, FileTextIcon, PersonIcon, PlusIcon, Pencil1Icon, ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { DeleteButton } from "@/components/common/DeleteButton";
+import EditResourceAllocationModal from "@/components/EditResourceAllocationModal";
 import { Button } from "@/components/ui/button";
+import constants from "@/lib/constants";
+import {
+  TEmployeeStore,
+  TimelineItem,
+  TProjectDetailsStore,
+  TResourceAllocation,
+} from "@/lib/model";
+import { apiRequest } from "@/network/apis";
 import EmployeeTimelineModal from "@/screens/EmployeeTimelineModal";
 import useEmployeeStore from "@/stores/useEmployeesStore";
-import { DeleteButton } from "@/components/common/DeleteButton";
-import toast from 'react-hot-toast';
-import { apiRequest } from "@/network/apis";
-import constants from "@/lib/constants";
-import EditResourceAllocationModal from "@/components/EditResourceAllocationModal";
+import useProjectDetailsStore from "@/stores/useProjectDetailsStore";
+import {
+  ArrowLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  FileTextIcon,
+  Pencil1Icon,
+  PersonIcon,
+  PlusIcon,
+  ReloadIcon,
+} from "@radix-ui/react-icons";
+import { Eye } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -37,9 +52,23 @@ export default function ProjectDetails() {
   }));
 
   // @ts-ignore
-  const  { getEmployeeTimeline } = useEmployeeStore((state: TEmployeeStore) => ({
-    getEmployeeTimeline: state.getEmployeeTimeline,
-  }));
+  const { TEmpdata, getEmployeeTimeline } = useEmployeeStore(
+    (state: TEmployeeStore) => ({
+      TEmpdata: state.data,
+      getEmployeeTimeline: state.getEmployeeTimeline,
+    })
+  );
+  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState<
+    string | null
+  >(null);
+  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
+  const [selectedResource, setSelectedResource] =
+    useState<TResourceAllocation | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -73,10 +102,18 @@ export default function ProjectDetails() {
     navigate(`/projects/${projectId}/resource-allocation`);
   };
 
-  const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<TResourceAllocation | null>(null);
-  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const handleOpenTimelineModal = async (resource: TResourceAllocation) => {
+    console.log("Opening timeline modal for employee:", resource.employee);
+    setSelectedEmployeeId(resource.employee);
+    setSelectedEmployeeName(resource.employee_name || "Employee");
+    try {
+      const timeline = await getEmployeeTimeline(resource.employee);
+      setTimelineData(timeline);
+      setIsTimelineModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching employee timeline:", error);
+    }
+  };
 
   const handleEditResource = (resource: TResourceAllocation) => {
     setSelectedResource(resource);
@@ -85,6 +122,9 @@ export default function ProjectDetails() {
 
   const handleCloseTimelineModal = () => {
     setIsTimelineModalOpen(false);
+    setSelectedEmployeeId(null);
+    setSelectedEmployeeName(null);
+    setTimelineData([]);
     setSelectedResource(null);
   };
 
@@ -93,12 +133,15 @@ export default function ProjectDetails() {
     setSelectedResource(null);
   };
 
-  const handleSaveResourceAllocation = async (updatedResource: TResourceAllocation) => {
+  const handleSaveResourceAllocation = async (
+    updatedResource: TResourceAllocation
+  ) => {
     try {
       const response = await apiRequest(
-        constants.UPDATE_PROJECT_ALLOCATION
-          .replace('{project_id}', projectId as string)
-          .replace('{allocation_id}', updatedResource.id.toString()),
+        constants.UPDATE_PROJECT_ALLOCATION.replace(
+          "{project_id}",
+          projectId as string
+        ).replace("{allocation_id}", updatedResource.id.toString()),
         "PATCH",
         updatedResource
       );
@@ -144,9 +187,10 @@ export default function ProjectDetails() {
   const handleDeleteResource = async (resource: TResourceAllocation) => {
     try {
       const response = await apiRequest(
-        constants.DELETE_PROJECT_ALLOCATION
-          .replace('{project_id}', projectId as string)
-          .replace('{allocation_id}', resource.id.toString()),
+        constants.DELETE_PROJECT_ALLOCATION.replace(
+          "{project_id}",
+          projectId as string
+        ).replace("{allocation_id}", resource.id.toString()),
         "DELETE"
       );
 
@@ -179,6 +223,19 @@ export default function ProjectDetails() {
         <Pencil1Icon className="w-4 h-4 mr-1" />
         Edit
       </Button>
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log("Data passed to handleOpenTimelineModal:", resource);
+          handleOpenTimelineModal(resource);
+        }}
+        variant="outline"
+        size="sm"
+        className="flex items-center"
+      >
+        <Eye className="w-4 h-4 mr-1" />
+        View Timeline
+      </Button>
       <DeleteButton
         onDelete={() => handleDeleteResource(resource)}
         itemName="resource allocation"
@@ -186,15 +243,15 @@ export default function ProjectDetails() {
     </div>
   );
 
-  const resourcesWithActions = resources.map(resource => ({
+  const resourcesWithActions = resources.map((resource) => ({
     ...resource,
-    actions: renderActionButtons(resource)
+    actions: renderActionButtons(resource),
   }));
 
   // Convert resourceAllocationHeaders to the correct format
-  const formattedHeaders = resourceAllocationHeaders.map(header => ({
+  const formattedHeaders = resourceAllocationHeaders.map((header) => ({
     key: header.key,
-    label: header.value
+    label: header.value,
   }));
 
   const handleEdit = () => {
@@ -203,7 +260,10 @@ export default function ProjectDetails() {
 
   const handleDelete = async () => {
     try {
-      const response = await apiRequest(`${constants.ALL_PROJECTS}${projectId}/`, "DELETE");
+      const response = await apiRequest(
+        `${constants.ALL_PROJECTS}${projectId}/`,
+        "DELETE"
+      );
       if (response.ok) {
         toast.success("Project deleted successfully");
         navigate("/projects");
@@ -217,13 +277,12 @@ export default function ProjectDetails() {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // You can adjust this number as needed
+  const [itemsPerPage] = useState(10);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Add this function to handle pagination for resources
   const paginatedResources = resources.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -232,10 +291,9 @@ export default function ProjectDetails() {
   const totalPages = Math.ceil(resources.length / itemsPerPage);
 
   return (
-    // @ts-ignore
-    <div className="flex flex-col h-full w-full overflow-auto h-screen">
-      <div className="flex-1 p-6 space-y-6">
-        <div className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
+    <div className="flex flex-1 flex-col overflow-y-auto">
+      <div className="flex-1 space-y-6 ">
+        <div className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10 ">
           <div className="flex items-center">
             <Button
               onClick={handleBackClick}
@@ -269,9 +327,13 @@ export default function ProjectDetails() {
         ) : (
           <>
             <div className="bg-white shadow-sm rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">{data.project_name}</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                {data.project_name}
+              </h2>
               <div className="flex justify-between items-center mb-6">
-                <p className="text-lg text-gray-600">Customer: {data.customer_name}</p>
+                <p className="text-lg text-gray-600">
+                  Customer: {data.customer_name}
+                </p>
                 <Button
                   onClick={handleViewCustomer}
                   variant="outline"
@@ -281,7 +343,7 @@ export default function ProjectDetails() {
                   View Customer Details
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-6">
                 <DisplayProjectDetails
                   header="Project Type"
                   data={data.project_type}
@@ -313,7 +375,9 @@ export default function ProjectDetails() {
                   valueId="childProjectIdValue"
                 />
                 <div className="bg-white p-4 border rounded-lg">
-                  <span className="text-sm font-semibold text-gray-600">Statement of Work</span>
+                  <span className="text-sm font-semibold text-gray-600">
+                    Statement of Work
+                  </span>
                   <Button
                     onClick={handleViewSOW}
                     variant="outline"
@@ -346,10 +410,13 @@ export default function ProjectDetails() {
                 <>
                   <div className="overflow-x-auto">
                     <AppTable
-                      headers={[...formattedHeaders, { key: 'actions', label: 'Actions' }]}
-                      rows={paginatedResources.map(resource => ({
+                      headers={[
+                        ...formattedHeaders,
+                        { key: "actions", label: "Actions" },
+                      ]}
+                      rows={paginatedResources.map((resource) => ({
                         ...resource,
-                        actions: renderActionButtons(resource)
+                        actions: renderActionButtons(resource),
                       }))}
                       onClick={() => {}}
                     />
@@ -385,20 +452,24 @@ export default function ProjectDetails() {
               )}
             </div>
 
-            {isTimelineModalOpen && selectedResource && (
+            {isTimelineModalOpen && selectedEmployeeId !== null && (
               // @ts-ignore
               <EmployeeTimelineModal
                 isOpen={isTimelineModalOpen}
                 onClose={handleCloseTimelineModal}
-                employeeId={selectedResource.id}
-                employeeName={selectedResource.employee_name}
+                // employeeId={selectedResource.id}
+                employeeId={selectedEmployeeId}
+                employeeName={selectedEmployeeName || ""}
+                // employeeName={selectedResource.employee_name}
                 projectId={projectId}
                 isLoading={false}
                 timelineData={timelineData}
-                onUpdateTimeline={(updatedTimeline) => setTimelineData(updatedTimeline)}
+                onUpdateTimeline={(updatedTimeline) =>
+                  setTimelineData(updatedTimeline)
+                }
               />
             )}
-            
+
             {isEditModalOpen && selectedResource && (
               <EditResourceAllocationModal
                 isOpen={isEditModalOpen}
