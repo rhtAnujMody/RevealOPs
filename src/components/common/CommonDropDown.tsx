@@ -9,7 +9,6 @@ interface DropdownItem {
 interface CommonDropdownProps {
   items: DropdownItem[];
   onSelect: (value: string) => void;
-  // @ts-ignore
   selectedValue: string;
   placeholder: string;
   className?: string;
@@ -46,7 +45,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   const selectedItem = items.find(item => item.value === selectedValue);
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={dropdownRef}>
+    <div className={`relative inline-block text-left w-full ${className}`} ref={dropdownRef}>
       <div>
         <button
           type="button"
@@ -59,7 +58,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
       </div>
 
       {isOpen && (
-        <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+        <div className="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             {items.map((item) => (
               <button
