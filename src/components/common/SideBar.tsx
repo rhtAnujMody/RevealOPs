@@ -1,18 +1,24 @@
 import { cn, logoutUser } from "@/lib/utils";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/Logo.svg";
-import { LogOut, LayoutDashboard, Users, FileText, Briefcase } from "lucide-react";
+import {
+  LogOut,
+  LayoutDashboard,
+  Users,
+  FileText,
+  Briefcase,
+} from "lucide-react";
 
 export default function SideBar() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogoClick = () => {
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   const isActive = (path: string) => {
-    if (path === '/dashboard') {
+    if (path === "/dashboard") {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);
@@ -42,9 +48,14 @@ export default function SideBar() {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white shadow-lg w-64">
+    <div className="flex flex-col h-full bg-white shadow-lg w-full">
       <div className="p-6 border-b border-gray-200">
-        <img src={logo} className="h-10 cursor-pointer" onClick={handleLogoClick} alt="Logo" />
+        <img
+          src={logo}
+          className="h-10 cursor-pointer"
+          onClick={handleLogoClick}
+          alt="Logo"
+        />
       </div>
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-2">

@@ -13,11 +13,11 @@ const Layout = () => {
   }
   return (
     <div className="flex flex-1 w-screen h-screen overflow-hidden">
-      <div className="flex basis-[15%] flex-shrink-0 border-r">
+      <div className="flex basis-[12%] flex-shrink-0 border-r">
         <SideBar />
       </div>
 
-      <div className="flex flex-1 p-6">
+      <div className="flex flex-1 p-3">
         <Outlet />
       </div>
     </div>
