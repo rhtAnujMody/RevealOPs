@@ -68,8 +68,8 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
     }
 
     try {
-      const updatedItem = { 
-        ...editingItem, 
+      const updatedItem = {
+        ...editingItem,
         ...editedValues,
         billable: editedValues.billable
       };
@@ -85,11 +85,11 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
 
       if (response.ok && response.data) {
         toast.success("The allocation has been updated successfully.");
-        
+
         // Fetch the latest data after successful update
         // @ts-ignore
         const latestData = await getEmployeeTimeline(employeeId);
-        
+
         setTimelineData(latestData);
         onUpdateTimeline(latestData);
         setEditingItem(null);
@@ -109,19 +109,17 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
   };
 
   const handleInputChange = (name: string, value: string | number | Date | null) => {
-    console.log(`handleInputChange called with name: ${name}, value:`, value);
     setEditedValues(prev => {
       let newValue = value;
       if (value instanceof Date) {
-        newValue = value.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+        newValue = value.toISOString().split('T')[0];
       }
-      console.log(`Setting ${name} to:`, newValue);
       return { ...prev, [name]: newValue };
     });
   };
 
   const bandwidthOptions = [
-    { label: '0%', value: '0' },
+    // { label: '0%', value: '0' },
     { label: '25%', value: '25' },
     { label: '50%', value: '50' },
     { label: '75%', value: '75' },
@@ -182,11 +180,11 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
 
       if (response.ok) {
         toast.success("The allocation has been deleted successfully.");
-        
+
         // Fetch the latest data after successful deletion
         // @ts-ignore
         const latestData = await getEmployeeTimeline(employeeId);
-        
+
         setTimelineData(latestData);
         onUpdateTimeline(latestData);
       } else {
@@ -221,7 +219,7 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
       <Dialog open={openDialogs[fieldName]} onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, [fieldName]: open }))}>
         <DialogTrigger asChild>
           <Button variant="outline" className="w-full pl-3 text-left font-normal" isLoading={false}>
-            {editedValues[fieldName] 
+            {editedValues[fieldName]
               ? format(parseISO(editedValues[fieldName] as string), 'PPP')
               : <span>{label}</span>}
           </Button>
@@ -307,8 +305,8 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
                           </div>
                         ) : (
                           <>
-                            {format(new Date(item?.allocation_start_date || ''), 'MMM d, yyyy')} - 
-                            {item.allocation_end_date 
+                            {format(new Date(item?.allocation_start_date || ''), 'MMM d, yyyy')} -
+                            {item.allocation_end_date
                               ? format(new Date(item.allocation_end_date), 'MMM d, yyyy')
                               : 'Present'}
                           </>
