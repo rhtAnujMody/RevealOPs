@@ -198,7 +198,7 @@ export type TEmployee = {
   active_status: string;
   reporting_to: number;
   projects: number[];
-  availableBandwidth: string;
+  bandwidth_available: string;
 };
 
 export interface SupersetDashboardProps {
