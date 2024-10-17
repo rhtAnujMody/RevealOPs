@@ -231,7 +231,7 @@ export default function ProjectDetails() {
         }}
         variant="outline"
         size="sm"
-        className="flex items-center"
+        className="items-center hidden"
       >
         <Eye className="w-4 h-4 mr-1" />
         View Timeline
