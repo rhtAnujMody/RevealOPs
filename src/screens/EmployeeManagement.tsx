@@ -51,6 +51,11 @@ export default function EmployeeManagement() {
     getAllEmployees();
   }, [search]);
 
+  useEffect(() => {
+    setSearch('');
+    getAllEmployees();
+  }, []);
+
   const handleEmployeeClick = async (employee: TEmployee) => {
     setSelectedEmployeeId(employee.id);
     setSelectedEmployeeName(`${employee.first_name} ${employee.last_name}`);

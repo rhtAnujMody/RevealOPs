@@ -416,9 +416,10 @@ export default function ProjectDetails() {
                       ]}
                       rows={paginatedResources.map((resource) => ({
                         ...resource,
+                        bandwidth_allocated: resource.bandwidth_allocated ? `${resource.bandwidth_allocated}%` : 'N/A',
                         actions: renderActionButtons(resource),
                       }))}
-                      onClick={() => {}}
+                      onClick={() => { }}
                     />
                   </div>
                   <div className="flex justify-between items-center mt-4">
