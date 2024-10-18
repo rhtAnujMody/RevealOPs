@@ -26,6 +26,7 @@ const AddCustomer: React.FC = () => {
     contract_start_date: '',
     contract_end_date: '',
     msa_location: '',
+    address: '',
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const getAllCustomers = useCustomerStore(state => state.getAllCustomers);
@@ -66,6 +67,7 @@ const AddCustomer: React.FC = () => {
     if (!formData.contact_phone) newErrors.contact_phone = ['Phone number is required'];
     if (!formData.contract_type) newErrors.contract_type = ['Contract type is required'];
     if (!formData.contract_start_date) newErrors.contract_start_date = ['Contract start date is required'];
+    if (!formData.address) newErrors.address = ['Address is required'];
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

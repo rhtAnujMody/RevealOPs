@@ -48,13 +48,13 @@ export default function EmployeeManagement() {
   const [errors, setErrors] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
-    getAllEmployees();
-  }, [search]);
-
-  useEffect(() => {
     setSearch('');
     getAllEmployees();
   }, []);
+
+  useEffect(() => {
+    getAllEmployees();
+  }, [search]);
 
   const handleEmployeeClick = async (employee: TEmployee) => {
     setSelectedEmployeeId(employee.id);
