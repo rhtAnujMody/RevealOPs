@@ -105,6 +105,7 @@ export type TCustomer = {
   contract_type: string;
   contract_start_date: string;
   msa_location: string;
+  address : string,
 };
 
 export type TSOW = {

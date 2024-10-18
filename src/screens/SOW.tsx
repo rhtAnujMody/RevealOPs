@@ -8,6 +8,7 @@ import { RefreshCw, PlusCircle, Search, X, ChevronLeft, ChevronRight } from "luc
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
+import { convertDaysToWeeks } from "@/lib/utils";
 
 
 export default function SOW() {
@@ -101,7 +102,7 @@ export default function SOW() {
           <PlusCircle className="mr-2 h-4 w-4" /> Add SOW
         </Button>
       </div>
-      
+
       <div className="w-full max-w-md relative">
         <Input
           id="search"
@@ -132,7 +133,10 @@ export default function SOW() {
               <div className="overflow-x-auto">
                 <AppTable
                   headers={formattedHeaders}
-                  rows={data}
+                  rows={data.map(item => ({
+                    ...item,
+                    duration: typeof item.duration === 'number' ? convertDaysToWeeks(item.duration) : 'N/A'
+                  }))}
                   onClick={handleOnClick}
                 />
               </div>

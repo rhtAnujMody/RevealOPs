@@ -189,6 +189,12 @@ export default function CustomerDetails() {
               titleId="msaLocationTitle"
               valueId="msaLocationValue"
             />
+            <DisplayCustomerDetails
+              header="Address"
+              data={data.address}
+              titleId="addressTitle"
+              valueId="addressValue"
+            />
             <div className="col-span-full flex space-x-4">
               <Button
                 onClick={handleViewAllSOWs}
