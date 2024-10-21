@@ -1,0 +1,49 @@
+name: Staging Deployment
+
+on: workflow_dispatch
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: revealops
+  ECS_SERVICE: revealops
+  ECS_CLUSTER: revealops
+  ECS_TASK_DEFINITION: .aws/task-definition.json
+  CONTAINER_NAME: app
+  REACT_APP_API_ENDPOINT: 'https://stagingapi1.joinelevatenow.co.in/api/v1/'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy To Staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Use Node Modules
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: NPM Install
+        run: npm install
+
+      - name: NPM Build
+        run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT npm run build --verbose
+
+      - name: Sync files to S3
+        run: |
+          aws s3 sync build/ s3://$S3_BUCKET --include "*" --exclude "index.html"
+          aws s3 sync build/ s3://$S3_BUCKET --exclude "*" --include "index.html" --cache-control max-age=0
+          aws s3 sync --delete build/ s3://$S3_BUCKET
