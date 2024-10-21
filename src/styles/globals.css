@@ -1,0 +1,11 @@
+/* Add this to your global CSS file */
+.rdp-day:hover:not(.rdp-day_selected) {
+  background-color: #f3f4f6; /* Light grey background on hover */
+  cursor: pointer;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:hover {
+  background-color: #3b82f6 !important; /* Blue background for selected date */
+  color: white !important;
+}
