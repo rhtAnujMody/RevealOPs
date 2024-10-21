@@ -3,7 +3,7 @@ name: Staging Deployment
 on: workflow_dispatch
 
 env:
-  AWS_REGION: ap-south-1
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: revealops
   ECS_SERVICE: revealops
   ECS_CLUSTER: revealops
@@ -21,7 +21,7 @@ jobs:
     environment: staging
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
