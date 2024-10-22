@@ -18,7 +18,7 @@ type FormData = {
   sow_description: string;
   sow_value: string;
   start_date: string;
-  end_date: string | null | "Until Terminated";
+  end_date: string | null;
   customer_spoc: string;
   reveal_spoc: string;
   business_unit: string;
@@ -123,7 +123,7 @@ const EditSOW: React.FC = () => {
 
     const submitData = { ...formData };
     if (submitData.end_date === null) {
-      submitData.end_date = "Until Terminated";
+      submitData.end_date = null;
     }
 
     try {
@@ -158,15 +158,15 @@ const EditSOW: React.FC = () => {
     { label: 'AI BU', value: 'AI BU' },
   ];
 
-  const formatDate = (dateString: string | null | "Until Terminated") => {
+  const formatDate = (dateString: string | null) => {
     if (!dateString) return '';
-    if (dateString === "Until Terminated") return dateString;
+    if (dateString === null) return dateString;
     const date = parseISO(dateString);
     return isValid(date) ? format(date, "PPP") : '';
   };
 
   const handleClearDate = (field: 'start_date' | 'end_date') => {
-    setFormData(prev => ({ ...prev, [field]: field === 'end_date' ? "Until Terminated" : null }));
+    setFormData(prev => ({ ...prev, [field]: field === 'end_date' ? null : null }));
   };
 
   return (
@@ -251,9 +251,8 @@ const EditSOW: React.FC = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        className={`w-full justify-start text-left font-normal ${
-                          !formData[key as keyof typeof formData] && "text-muted-foreground"
-                        }`}
+                        className={`w-full justify-start text-left font-normal ${!formData[key as keyof typeof formData] && "text-muted-foreground"
+                          }`}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData[key as keyof typeof formData]
@@ -264,7 +263,7 @@ const EditSOW: React.FC = () => {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== "Until Terminated"
+                        selected={formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== null
                           ? parseISO(formData[key as keyof typeof formData] as string)
                           : undefined}
                         onSelect={(date) => handleDateChange(date, key as 'start_date' | 'end_date')}
@@ -272,7 +271,7 @@ const EditSOW: React.FC = () => {
                       />
                     </PopoverContent>
                   </Popover>
-                  {formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== "Until Terminated" && (
+                  {formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== null && (
                     <Button
                       type="button"
                       variant="ghost"

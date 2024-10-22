@@ -334,6 +334,7 @@ export default function EmployeeManagement() {
                               selected={dates[employee.id]?.endDate || undefined}
                               onSelect={(date) => handleDateChange(employee.id, 'endDate', date || null)}
                               initialFocus
+                              minDate={new Date()}
                             />
                           </PopoverContent>
                         </Popover>
