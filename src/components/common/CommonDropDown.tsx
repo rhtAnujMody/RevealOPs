@@ -46,7 +46,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
       </PopoverTrigger>
       <PopoverContent className={`w-[200px] p-0 ${className}`}>
         <div className="max-h-[200px] overflow-y-auto">
-          {items.map((item) => (
+          {items?.map((item) => (
             <div
               key={item.value}
               className="flex items-center px-2 py-1 cursor-pointer hover:bg-gray-100"

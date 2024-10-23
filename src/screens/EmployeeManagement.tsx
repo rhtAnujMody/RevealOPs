@@ -83,14 +83,14 @@ export default function EmployeeManagement() {
     { label: '75%', value: '75' },
     { label: '100%', value: '100' },
   ];
-  // const getAvailableBandwidthOptions = (availableBandwidth: string) => {
-  //   const options = [];
-  //   if (availableBandwidth >= '25') options.push({ label: '25%', value: '25' });
-  //   if (availableBandwidth >= '50') options.push({ label: '50%', value: '50' });
-  //   if (availableBandwidth >= '75') options.push({ label: '75%', value: '75' });
-  //   if (availableBandwidth == '100' || availableBandwidth == 'On Bench') options.push({ label: '100%', value: '100' });
-  //   return options;
-  // };
+  const getAvailableBandwidthOptions = (availableBandwidth: string) => {
+    const options = [];
+    if (availableBandwidth == '0') options.push({ label: '25%', value: '25' }, { label: '50%', value: '50' }, { label: '75%', value: '75' }, { label: '100%', value: '100' });
+    if (availableBandwidth == '25') options.push({ label: '25%', value: '25' }, { label: '50%', value: '50' }, { label: '75%', value: '75' });
+    if (availableBandwidth == '50') options.push({ label: '25%', value: '25' }, { label: '50%', value: '50' });
+    if (availableBandwidth == '75') options.push({ label: '25%', value: '25' });
+    return options;
+  };
 
   const bandWidthHandler = (employeeId: number, value: string) => {
     setSelectedBandwidth((prev) => ({
@@ -285,7 +285,7 @@ export default function EmployeeManagement() {
                       <TableCell>{employee.bandwidth_available}%</TableCell>
                       <TableCell>
                         <CommonDropdown
-                          items={BandwidthArray}
+                          items={getAvailableBandwidthOptions(employee.bandwidth_available)}
                           onSelect={(value) => bandWidthHandler(employee.id, value)}
                           selectedValue={selectedBandwidth[employee.id] || ''}
                           placeholder="Choose an option"
