@@ -231,9 +231,9 @@ export default function EmployeeManagement() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="flex flex-1">
             <Tooltip.Provider>
-              <Table className="border w-full">
+              <Table className="border w-full h-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[50px] sticky top-0 bg-white z-10"></TableHead>
@@ -285,7 +285,6 @@ export default function EmployeeManagement() {
                       <TableCell>{employee.bandwidth_available}%</TableCell>
                       <TableCell>
                         <CommonDropdown
-                          // items={getAvailableBandwidthOptions(employee.status)}
                           items={BandwidthArray}
                           onSelect={(value) => bandWidthHandler(employee.id, value)}
                           selectedValue={selectedBandwidth[employee.id] || ''}
