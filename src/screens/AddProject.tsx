@@ -135,8 +135,7 @@ const AddProject: React.FC = () => {
     { label: 'Product Engineering', value: 'Product Engineering' },
     { label: 'Staff Augmentation', value: 'Staff Augmentation' },
     { label: 'Front End Engineering Support', value: 'Front End Engineering Support' },
-    { label: 'Pipeline Development', value: 'Pipeline Development' },
-    { label: 'Pipeline Development', value: 'Pipeline Development' },
+    { label: 'Pipeline Development', value: 'Pipeline Development' }
   ];
 
   const projectStatusOptions = [
