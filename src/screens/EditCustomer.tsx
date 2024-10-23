@@ -25,7 +25,7 @@ const EditCustomer: React.FC = () => {
     contact_phone: '',
     contract_type: '',
     contract_start_date: '',
-    contract_end_date: '',
+    contract_end_date: null,
     msa_location: '',
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -131,7 +131,7 @@ const EditCustomer: React.FC = () => {
   };
 
   const handleClearDate = (field: 'contract_start_date' | 'contract_end_date') => {
-    setFormData(prev => ({ ...prev, [field]: '' }));
+    setFormData(prev => ({ ...prev, [field]: null }));
   };
 
   return (
