@@ -13,19 +13,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, isValid, parseISO } from 'date-fns';
 
-type FormData = {
-  customer: string;
-  sow_description: string;
-  sow_value: string;
-  start_date: string;
-  end_date: string | null;
-  customer_spoc: string;
-  reveal_spoc: string;
-  business_unit: string;
-  contract_url: string;
-};
+interface EditSOWProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-const EditSOW: React.FC = () => {
+const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
   const { sowId } = useParams<{ sowId: string }>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
@@ -42,7 +35,8 @@ const EditSOW: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [customers, setCustomers] = useState<{ label: string; value: string }[]>([]);
   const getAllSOW = useSOWStore(state => state.getAllSOW);
-  const { data: sowData, getSOWDetails, setId } = useSOWDetailsStore();
+  const { data: sowDataState, getSOWDetails, setId } = useSOWDetailsStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (sowId) {
@@ -53,16 +47,16 @@ const EditSOW: React.FC = () => {
   }, [sowId, setId, getSOWDetails]);
 
   useEffect(() => {
-    if (sowData) {
-      const { sow_id, duration, customer_name, ...rest } = sowData;
+    if (sowDataState) {
+      const { sow_id, duration, customer_name, ...rest } = sowDataState;
       // @ts-ignore
       setFormData({
         ...rest,
-        customer: sowData.customer ? sowData.customer.toString() : '',
+        customer: sowDataState.customer ? sowDataState.customer.toString() : '',
         end_date: rest.end_date || null,
       });
     }
-  }, [sowData]);
+  }, [sowDataState]);
 
   const fetchCustomers = async () => {
     try {
@@ -117,39 +111,40 @@ const EditSOW: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    const submitData = { ...formData };
-    if (submitData.end_date === null) {
-      submitData.end_date = null;
-    }
+    setIsLoading(true);
 
     try {
-      const response = await apiRequest(`${constants.ALL_SOWS}${sowId}/`, 'PUT', submitData);
-      if (response.ok) {
-        toast.success('SOW updated successfully');
-        getAllSOW(1);
-        navigate(`/sows/${sowId}`);
-      } else {
-        if (response.error && typeof response.error === 'object') {
-          const apiErrors: Record<string, string[]> = {};
-          Object.entries(response.error).forEach(([key, value]) => {
-            apiErrors[key] = Array.isArray(value) ? value : [value as string];
-          });
-          setErrors(apiErrors);
-          const firstErrorField = Object.keys(apiErrors)[0];
-          if (firstErrorField) {
-            toast.error(apiErrors[firstErrorField][0]);
-          }
+      const payload = {
+        ...formData,
+        customer: formData.customer.toString(),
+        end_date: formData.end_date === "Until Terminated" ? null : formData.end_date,
+      };
+
+      if (sowId) {
+        const response = await apiRequest(
+          constants.UPDATE_SOW.replace('{sow_id}', sowId),
+          'PUT',
+          payload
+        );
+
+        if (response.ok) {
+          toast.success('SOW updated successfully');
+          getAllSOW(1);
+          navigate(`/sows/${sowId}`);
         } else {
           toast.error('Failed to update SOW');
         }
+      } else {
+        toast.error('SOW ID is missing');
       }
     } catch (error) {
       console.error('Error updating SOW:', error);
       toast.error('An error occurred while updating the SOW');
+    } finally {
+      setIsLoading(false);
     }
   };
 
