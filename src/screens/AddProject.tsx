@@ -128,15 +128,15 @@ const AddProject: React.FC = () => {
 
   const projectTypeOptions = [
     { label: 'Fixed Price', value: 'Fixed Price' },
-    { label: 'Time and Material', value: 'Time and Material' },
+    { label: 'Time and Material', value: 'T&M' },
   ];
 
   const serviceOfferingOptions = [
     { label: 'Product Engineering', value: 'Product Engineering' },
     { label: 'Staff Augmentation', value: 'Staff Augmentation' },
-    { label: 'Software Development', value: 'Software Development' },
-    { label: 'Consulting', value: 'Consulting' },
-    { label: 'Maintenance', value: 'Maintenance' },
+    { label: 'Front End Engineering Support', value: 'Front End Engineering Support' },
+    { label: 'Pipeline Development', value: 'Pipeline Development' },
+    { label: 'Pipeline Development', value: 'Pipeline Development' },
   ];
 
   const projectStatusOptions = [
