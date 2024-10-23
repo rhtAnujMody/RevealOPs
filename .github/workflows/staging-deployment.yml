@@ -9,7 +9,7 @@ env:
   ECS_CLUSTER: revealops
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: app
-  REACT_APP_API_ENDPOINT: 'https://stagingapi1.joinelevatenow.co.in/api/v1/'
+  REACT_APP_API_ENDPOINT: 'http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/api/'
 
 permissions:
   contents: read
@@ -41,9 +41,4 @@ jobs:
 
       - name: NPM Build
         run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT npm run build --verbose
-
-      - name: Sync files to S3
-        run: |
-          aws s3 sync build/ s3://$S3_BUCKET --include "*" --exclude "index.html"
-          aws s3 sync build/ s3://$S3_BUCKET --exclude "*" --include "index.html" --cache-control max-age=0
-          aws s3 sync --delete build/ s3://$S3_BUCKET
+        
