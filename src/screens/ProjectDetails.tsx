@@ -226,7 +226,7 @@ export default function ProjectDetails() {
   };
 
   const renderActionButtons = (resource: TResourceAllocation) => (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 justify-end">
       {getStatusTag(resource.allocation_start_date, resource.allocation_end_date)}
       <Button
         onClick={(e) => {
