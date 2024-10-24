@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CalendarIcon, X } from "lucide-react";
+import { ArrowLeft, CalendarIcon, X, Upload } from "lucide-react";
 import { apiRequest } from "@/network/apis";
 import constants from "@/lib/constants";
 import { toast } from 'react-hot-toast';
@@ -12,6 +12,7 @@ import CommonDropdown from "@/components/common/CommonDropDown";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, isValid, parseISO } from 'date-fns';
+
 
 interface EditSOWProps {
   isOpen: boolean;
@@ -37,6 +38,8 @@ const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
   const getAllSOW = useSOWStore(state => state.getAllSOW);
   const { data: sowDataState, getSOWDetails, setId } = useSOWDetailsStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (sowId) {
@@ -111,23 +114,40 @@ const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
 
     try {
-      const payload = {
-        ...formData,
-        customer: formData.customer.toString(),
-        end_date: formData.end_date === "Until Terminated" ? null : formData.end_date,
-      };
+      const formDataToSend = new FormData();
+
+      // Append all form fields to FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formDataToSend.append(key, value.toString());
+        }
+      });
+
+      // Append the file if selected
+      if (selectedFile) {
+        formDataToSend.append('sow_repository', selectedFile);
+      }
 
       if (sowId) {
         const response = await apiRequest(
           constants.UPDATE_SOW.replace('{sow_id}', sowId),
           'PUT',
-          payload
+          formDataToSend,
+          {
+            'Content-Type': 'multipart/form-data',
+          }
         );
 
         if (response.ok) {
@@ -162,6 +182,20 @@ const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
 
   const handleClearDate = (field: 'start_date' | 'end_date') => {
     setFormData(prev => ({ ...prev, [field]: field === 'end_date' ? null : null }));
+  };
+
+  const handleFilePick = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
+
+      if (result.type === 'success') {
+        setSelectedFile(result);
+      }
+    } catch (error) {
+      console.error('Error picking file:', error);
+    }
   };
 
   return (
@@ -215,7 +249,7 @@ const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Other form fields */}
-            {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc', 'contract_url'].map((key) => (
+            {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc'].map((key) => (
               <div key={key} className="space-y-2">
                 <label htmlFor={key} className="block text-sm font-medium text-gray-700">
                   {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -282,6 +316,35 @@ const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
                 ))}
               </div>
             ))}
+
+            {/* Add file input for contract */}
+            <div className="space-y-2">
+              <label htmlFor="contract" className="block text-sm font-medium text-gray-700">
+                Contract File
+              </label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="file"
+                  id="contract"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                  accept=".pdf,.doc,.docx"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {selectedFile ? 'Change File' : 'Upload Contract'}
+                </Button>
+                {selectedFile && (
+                  <span className="text-sm text-gray-600">{selectedFile.name}</span>
+                )}
+              </div>
+            </div>
 
             <Button type="submit" className="w-full">Update SOW</Button>
           </form>

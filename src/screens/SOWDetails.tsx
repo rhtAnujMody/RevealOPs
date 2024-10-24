@@ -1,7 +1,7 @@
 import { TSOWDetailsStore } from "@/lib/model";
 import useSOWDetailsStore from "@/stores/useSOWDetailsStore";
-import { ReloadIcon, ArrowLeftIcon, Pencil1Icon } from "@radix-ui/react-icons";
-import { useEffect } from "react";
+import { ReloadIcon, ArrowLeftIcon, Pencil1Icon, FileIcon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { convertDaysToWeeks } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,14 @@ export default function SOWDetails() {
     } catch (error) {
       console.error("Error deleting SOW:", error);
       toast.error("An error occurred while deleting the SOW");
+    }
+  };
+
+  const handleViewContract = () => {
+    if (data.sow_presigned_url) {
+      window.open(data.sow_presigned_url, '_blank');
+    } else {
+      toast.error("Contract URL is not available");
     }
   };
 
@@ -183,6 +191,14 @@ export default function SOWDetails() {
             >
               <Briefcase className="w-4 h-4 mr-2" />
               View All Projects
+            </Button>
+            <Button
+              onClick={handleViewContract}
+              variant="outline"
+              className="flex-1 flex items-center justify-center"
+            >
+              <FileIcon className="w-4 h-4 mr-2" />
+              View Contract
             </Button>
           </div>
         </div>

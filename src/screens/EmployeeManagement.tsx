@@ -48,11 +48,6 @@ export default function EmployeeManagement() {
   const [errors, setErrors] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
-    setSearch('');
-    getAllEmployees();
-  }, []);
-
-  useEffect(() => {
     getAllEmployees();
   }, [search]);
 
