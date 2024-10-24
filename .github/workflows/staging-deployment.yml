@@ -9,6 +9,7 @@ env:
   ECS_CLUSTER: revealops
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: app
+  S3_BUCKET: 'reveal-ops-ui'
   REACT_APP_API_ENDPOINT: 'http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/api/'
 
 permissions:
