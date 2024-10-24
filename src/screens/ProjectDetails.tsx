@@ -117,6 +117,18 @@ export default function ProjectDetails() {
     }
   };
 
+  const fetchTimelineData = async (resource: TResourceAllocation) => {
+    try {
+      const timeline = await getEmployeeTimeline(selectedEmployeeId);
+      setTimelineData(timeline);
+    } catch (error) {
+      console.error("Error fetching employee timeline:", error);
+      toast.error("Failed to fetch employee timeline");
+    }
+  };
+
+  
+
   const handleEditResource = (resource: TResourceAllocation) => {
     setSelectedResource(resource);
     setIsEditModalOpen(true);
@@ -489,6 +501,7 @@ export default function ProjectDetails() {
                 isLoading={false}
                 timelineData={timelineData}
                 onUpdateTimeline={handleUpdateTimeline}
+                fetchTimelineData={fetchTimelineData}
               />
             )}
 

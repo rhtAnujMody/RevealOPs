@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import constants from "@/lib/constants";
-import { TEmployee, TEmployeeStore, TimelineItem } from "@/lib/model";
+import { TEmployee, TEmployeeStore, TimelineItem, TResourceAllocation } from "@/lib/model";
 import { apiRequest } from "@/network/apis";
 import useEmployeeStore from "@/stores/useEmployeesStore";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
@@ -59,6 +59,16 @@ export default function EmployeeManagement() {
     const timeline = await getEmployeeTimeline(employee.id);
     setTimelineData(timeline);
     setModalOpen(true);
+  };
+
+  const fetchTimelineData = async (resource: TResourceAllocation) => {
+    try {
+      const timeline = await getEmployeeTimeline(selectedEmployeeId);
+      setTimelineData(timeline);
+    } catch (error) {
+      console.error("Error fetching employee timeline:", error);
+      toast.error("Failed to fetch employee timeline");
+    }
   };
 
   const handleDateChange = (employeeId: number, type: 'startDate' | 'endDate', date: Date | null) => {
@@ -362,6 +372,7 @@ export default function EmployeeManagement() {
         onUpdateTimeline={handleUpdateTimeline}
         projectId={projectId}
         isLoading={false}
+        fetchTimelineData={fetchTimelineData}
       />
     </div>
   );
