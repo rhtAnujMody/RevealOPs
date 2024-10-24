@@ -1,6 +1,6 @@
 import { TSOWDetailsStore } from "@/lib/model";
 import useSOWDetailsStore from "@/stores/useSOWDetailsStore";
-import { ReloadIcon, ArrowLeftIcon, Pencil1Icon, FileIcon } from "@radix-ui/react-icons";
+import { ReloadIcon, ArrowLeftIcon, Pencil1Icon, FileIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { convertDaysToWeeks } from "@/lib/utils";
@@ -69,6 +69,14 @@ export default function SOWDetails() {
     }
   };
 
+  const handleViewCustomer = () => {
+    if (data.customer) {
+      navigate(`/customers/${data.customer}`);
+    } else {
+      toast.error("No customer associated with this SOW");
+    }
+  };
+
   const DisplaySOWDetails = ({
     header,
     data,
@@ -132,7 +140,17 @@ export default function SOWDetails() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">{data.customer_name}</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">{data.customer_name}</h2>
+          <Button
+            onClick={handleViewCustomer}
+            variant="outline"
+            className="flex items-center"
+          >
+            <PersonIcon className="w-4 h-4 mr-2" />
+            View Customer Details
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <DisplaySOWDetails
             header="Description"
