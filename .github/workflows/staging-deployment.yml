@@ -9,6 +9,7 @@ env:
   ECS_CLUSTER: revealops
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: app
+  S3_BUCKET: 'reveal-ops-ui'
   REACT_APP_API_ENDPOINT: 'http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/api/'
 
 permissions:
@@ -41,4 +42,9 @@ jobs:
 
       - name: Yarn Build
         run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT yarn build --verbose
-        
+
+      - name: Sync files to S3
+        run:
+          aws s3 sync --delete build/ s3://$S3_BUCKET
+          aws s3 sync build/ s3://$S3_BUCKET --include "*" --exclude "index.html"
+          aws s3 sync build/ s3://$S3_BUCKET --exclude "*" --include "index.html" --cache-control max-age=0
