@@ -236,10 +236,10 @@ export default function ProjectDetails() {
         <Eye className="w-4 h-4 mr-1" />
         View Timeline
       </Button>
-      <DeleteButton
+      {/* <DeleteButton
         onDelete={() => handleDeleteResource(resource)}
         itemName="resource allocation"
-      />
+      /> */}
     </div>
   );
 
@@ -316,7 +316,7 @@ export default function ProjectDetails() {
               <Pencil1Icon className="w-4 h-4 mr-1" />
               Edit
             </Button>
-            <DeleteButton onDelete={handleDelete} itemName="project" />
+            {/* <DeleteButton onDelete={handleDelete} itemName="project" /> */}
           </div>
         </div>
 

@@ -135,7 +135,7 @@ export default function SOWDetails() {
             <Pencil1Icon className="w-4 h-4 mr-1" />
             Edit
           </Button>
-          <DeleteButton onDelete={handleDelete} itemName="SOW" />
+          {/* <DeleteButton onDelete={handleDelete} itemName="SOW" /> */}
         </div>
       </div>
 

@@ -134,7 +134,7 @@ export default function CustomerDetails() {
               <Pencil1Icon className="w-4 h-4 mr-1" />
               Edit
             </Button>
-            <DeleteButton onDelete={handleDelete} itemName="customer" />
+            {/* <DeleteButton onDelete={handleDelete} itemName="customer" /> */}
           </div>
         </div>
 
