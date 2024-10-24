@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -44,18 +44,23 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={`w-[200px] p-0 ${className}`}>
-        <div className="max-h-[200px] overflow-y-auto">
+      <PopoverContent className={`w-full p-0 ${className}`}>
+        <div className="max-h-[300px] overflow-y-auto rounded-md bg-white shadow-md">
           {items?.map((item) => (
             <div
               key={item.value}
-              className="flex items-center px-2 py-1 cursor-pointer hover:bg-gray-100"
+              className={`flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150 ${
+                item.value === selectedValue ? 'bg-blue-50 text-blue-600' : ''
+              }`}
               onClick={() => {
                 onSelect(item.value);
                 setOpen(false);
               }}
             >
-              {item.label}
+              <span>{item.label}</span>
+              {item.value === selectedValue && (
+                <Check className="h-4 w-4 text-blue-600" />
+              )}
             </div>
           ))}
         </div>
