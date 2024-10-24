@@ -27,6 +27,7 @@ import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { format, isBefore, isAfter, isWithinInterval } from 'date-fns';
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -208,8 +209,24 @@ export default function ProjectDetails() {
     }
   };
 
+  const getStatusTag = (startDate: string | null, endDate: string | null) => {
+    const now = new Date();
+    const start = startDate ? new Date(startDate) : now;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (end && isBefore(end, now)) {
+      return <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">Completed</span>;
+    } else if (isWithinInterval(now, { start, end: end || now })) {
+      return <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs font-medium">Active</span>;
+    } else if (isAfter(start, now)) {
+      return <span className="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium">Upcoming</span>;
+    }
+    return null;
+  };
+
   const renderActionButtons = (resource: TResourceAllocation) => (
-    <div className="flex space-x-2">
+    <div className="flex items-center space-x-2">
+      {getStatusTag(resource.allocation_start_date, resource.allocation_end_date)}
       <Button
         onClick={(e) => {
           e.stopPropagation();
@@ -236,10 +253,6 @@ export default function ProjectDetails() {
         <Eye className="w-4 h-4 mr-1" />
         View Timeline
       </Button>
-      {/* <DeleteButton
-        onDelete={() => handleDeleteResource(resource)}
-        itemName="resource allocation"
-      /> */}
     </div>
   );
 
@@ -412,7 +425,7 @@ export default function ProjectDetails() {
                     <AppTable
                       headers={[
                         ...formattedHeaders,
-                        { key: "actions", label: "Actions" },
+                        { key: "actions", label: "Actions", className: "text-right" },
                       ]}
                       rows={paginatedResources.map((resource) => ({
                         ...resource,
