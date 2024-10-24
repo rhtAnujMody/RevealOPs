@@ -1,5 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface DropdownItem {
   label: string;
@@ -10,7 +16,7 @@ interface CommonDropdownProps {
   items: DropdownItem[];
   onSelect: (value: string) => void;
   selectedValue: string;
-  placeholder: string;
+  placeholder?: string;
   className?: string;
 }
 
@@ -18,67 +24,48 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   items,
   onSelect,
   selectedValue,
-  placeholder,
+  placeholder = "Select an option",
   className = '',
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleSelect = (value: string) => {
-    onSelect(value);
-    setIsOpen(false);
-  };
-
-  const selectedItem = items.find(item => item.value === selectedValue);
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <div className={`relative inline-block text-left w-full ${className}`} ref={dropdownRef}>
-      <div>
-        <button
-          type="button"
-          className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
-          onClick={() => setIsOpen(!isOpen)}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={`w-full justify-between ${className}`}
         >
-          {selectedItem ? selectedItem.label : placeholder}
-          <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-
-      {isOpen && (
-        <div className="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-            {items.map((item) => (
-              <button
-                key={item.value}
-                className={`${
-                  selectedValue === item.value ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                } group flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 hover:text-gray-900`}
-                role="menuitem"
-                onClick={() => handleSelect(item.value)}
-              >
-                {item.label}
-                {selectedValue === item.value && (
-                  <Check className="ml-auto h-4 w-4 text-indigo-500" aria-hidden="true" />
-                )}
-              </button>
-            ))}
-          </div>
+          {selectedValue
+            ? items.find((item) => item.value === selectedValue)?.label
+            : placeholder}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className={`w-full p-0 ${className}`}>
+        <div className="max-h-[300px] overflow-y-auto rounded-md bg-white shadow-md">
+          {items?.map((item) => (
+            <div
+              key={item.value}
+              className={`flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors duration-150 ${
+                item.value === selectedValue ? 'bg-blue-50 text-blue-600' : ''
+              }`}
+              onClick={() => {
+                onSelect(item.value);
+                setOpen(false);
+              }}
+            >
+              <span>{item.label}</span>
+              {item.value === selectedValue && (
+                <Check className="h-4 w-4 text-blue-600" />
+              )}
+            </div>
+          ))}
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 

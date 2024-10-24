@@ -11,6 +11,7 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  minDate,
   ...props
 }: CalendarProps) {
   return (
@@ -54,6 +55,7 @@ function Calendar({
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
       {...props}
+      disabled={{ before: minDate }}
     />
   );
 }

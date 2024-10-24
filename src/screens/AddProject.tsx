@@ -128,15 +128,14 @@ const AddProject: React.FC = () => {
 
   const projectTypeOptions = [
     { label: 'Fixed Price', value: 'Fixed Price' },
-    { label: 'Time and Material', value: 'Time and Material' },
+    { label: 'Time and Material', value: 'T&M' },
   ];
 
   const serviceOfferingOptions = [
     { label: 'Product Engineering', value: 'Product Engineering' },
     { label: 'Staff Augmentation', value: 'Staff Augmentation' },
-    { label: 'Software Development', value: 'Software Development' },
-    { label: 'Consulting', value: 'Consulting' },
-    { label: 'Maintenance', value: 'Maintenance' },
+    { label: 'Front End Engineering Support', value: 'Front End Engineering Support' },
+    { label: 'Pipeline Development', value: 'Pipeline Development' }
   ];
 
   const projectStatusOptions = [
@@ -188,12 +187,12 @@ const AddProject: React.FC = () => {
               <CommonDropdown
                 items={customers}
                 onSelect={(value) => handleDropdownChange('customer', value)}
-                selectedValue={formData.customer?.toString()}
+                selectedValue={formData.customer}
                 placeholder="Select customer"
                 className="w-full"
               />
               {errors.customer && errors.customer.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                <p key={index} className="text-destructive text-sm mt-1">{error}</p>
               ))}
             </div>
 
@@ -205,12 +204,12 @@ const AddProject: React.FC = () => {
               <CommonDropdown
                 items={sows}
                 onSelect={(value) => handleDropdownChange('sow', value)}
-                selectedValue={formData.sow?.toString()}
+                selectedValue={formData.sow}
                 placeholder="Select SOW"
                 className="w-full"
               />
               {errors.sow && errors.sow.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                <p key={index} className="text-destructive text-sm mt-1">{error}</p>
               ))}
             </div>
 
@@ -222,12 +221,12 @@ const AddProject: React.FC = () => {
               <CommonDropdown
                 items={projectTypeOptions}
                 onSelect={(value) => handleDropdownChange('project_type', value)}
-                selectedValue={formData.project_type}
+                selectedValue={formData.project_type || ''}
                 placeholder="Select project type"
                 className="w-full"
               />
               {errors.project_type && errors.project_type.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                <p key={index} className="text-destructive text-sm mt-1">{error}</p>
               ))}
             </div>
 
@@ -239,12 +238,12 @@ const AddProject: React.FC = () => {
               <CommonDropdown
                 items={serviceOfferingOptions}
                 onSelect={(value) => handleDropdownChange('service_offering', value)}
-                selectedValue={formData.service_offering}
+                selectedValue={formData.service_offering || ''}
                 placeholder="Select service offering"
                 className="w-full"
               />
               {errors.service_offering && errors.service_offering.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                <p key={index} className="text-destructive text-sm mt-1">{error}</p>
               ))}
             </div>
 
@@ -256,12 +255,12 @@ const AddProject: React.FC = () => {
               <CommonDropdown
                 items={projectStatusOptions}
                 onSelect={(value) => handleDropdownChange('project_status', value)}
-                selectedValue={formData.project_status}
+                selectedValue={formData.project_status || ''}
                 placeholder="Select project status"
                 className="w-full"
               />
               {errors.project_status && errors.project_status.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                <p key={index} className="text-destructive text-sm mt-1">{error}</p>
               ))}
             </div>
 
