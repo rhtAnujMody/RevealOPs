@@ -20,7 +20,7 @@ interface EmployeeTimelineModalProps {
   projectId: string | undefined;
   isLoading: boolean;
   timelineData: TimelineItem[];
-  onUpdateTimeline: (updatedTimeline: TimelineItem[]) => void;
+  onUpdateTimeline: () => void;
 }
 
 const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
@@ -87,11 +87,10 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
         toast.success("The allocation has been updated successfully.");
 
         // Fetch the latest data after successful update
-        // @ts-ignore
         const latestData = await getEmployeeTimeline(employeeId);
 
         setTimelineData(latestData);
-        onUpdateTimeline(latestData);
+        onUpdateTimeline(); // Call this function to update the parent component
         setEditingItem(null);
         setEditedValues({});
       } else {
@@ -186,7 +185,7 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
         const latestData = await getEmployeeTimeline(employeeId);
 
         setTimelineData(latestData);
-        onUpdateTimeline(latestData);
+        onUpdateTimeline(); // Call this function to update the parent component
       } else {
         toast.error("Failed to delete the allocation. Please try again.");
       }
