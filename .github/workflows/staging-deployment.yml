@@ -41,10 +41,10 @@ jobs:
         run: yarn install
 
       - name: Yarn Build
-        run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT yarn build --verbose
+        run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT yarn build
 
       - name: Sync files to S3
-        run:
-          aws s3 sync --delete build/ s3://$S3_BUCKET
-          aws s3 sync build/ s3://$S3_BUCKET --include "*" --exclude "index.html"
-          aws s3 sync build/ s3://$S3_BUCKET --exclude "*" --include "index.html" --cache-control max-age=0
+        run: |
+          aws s3 sync --delete dist/ s3://$S3_BUCKET
+          aws s3 sync dist/ s3://$S3_BUCKET --include "*" --exclude "index.html"
+          aws s3 sync dist/ s3://$S3_BUCKET --exclude "*" --include "index.html" --cache-control max-age=0
