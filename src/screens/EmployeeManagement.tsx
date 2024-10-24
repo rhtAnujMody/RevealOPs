@@ -19,7 +19,7 @@ import useEmployeeStore from "@/stores/useEmployeesStore";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Eye, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
 import EmployeeTimelineModal from "./EmployeeTimelineModal";
@@ -68,6 +68,10 @@ export default function EmployeeManagement() {
     }));
     validateEmployeeFields(employeeId);
   };
+
+  const handleUpdateTimeline = useCallback(() => {
+    getAllEmployees();
+  }, [getAllEmployees]);
 
   const BillableArray = [
     { label: 'Yes', value: 'Yes' },
@@ -189,9 +193,9 @@ export default function EmployeeManagement() {
     navigate(-1); // This will go back to the previous page in the browser history
   };
 
-  const handleUpdateTimeline = (updatedTimeline: TimelineItem[]) => {
-    setTimelineData(updatedTimeline);
-  };
+  // const handleUpdateTimeline = (updatedTimeline: TimelineItem[]) => {
+  //   setTimelineData(updatedTimeline);
+  // };
 
   return (
     <div className="flex flex-col h-full w-full">
