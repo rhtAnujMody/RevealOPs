@@ -41,7 +41,7 @@ jobs:
         run: yarn install
 
       - name: Yarn Build
-        run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT yarn build --verbose
+        run: REACT_APP_API_ENDPOINT=$REACT_APP_API_ENDPOINT yarn build
 
       - name: Sync files to S3
         run:
