@@ -23,6 +23,8 @@ import { useEffect, useState } from "react";
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from "react-router-dom";
 import EmployeeTimelineModal from "./EmployeeTimelineModal";
+import { format, parseISO } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 export default function EmployeeManagement() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
@@ -154,14 +156,19 @@ export default function EmployeeManagement() {
       return;
     }
 
-    const payload = selectedEmployees.map(employee => ({
-      employee: employee.id,
-      role: employee.designation,
-      allocation_start_date: dates[employee.id]?.startDate?.toISOString().split('T')[0] || null,
-      allocation_end_date: dates[employee.id]?.endDate?.toISOString().split('T')[0] || null,
-      bandwidth_allocated: selectedBandwidth[employee.id] || null,
-      billable: selectedBillable[employee.id] || null,
-    }));
+    const payload = selectedEmployees.map(employee => {
+      const startDate = dates[employee.id]?.startDate;
+      const endDate = dates[employee.id]?.endDate;
+
+      return {
+        employee: employee.id,
+        role: employee.designation,
+        allocation_start_date: startDate ? format(startDate, 'yyyy-MM-dd') : null,
+        allocation_end_date: endDate ? format(endDate, 'yyyy-MM-dd') : null,
+        bandwidth_allocated: selectedBandwidth[employee.id] || null,
+        billable: selectedBillable[employee.id] || null,
+      };
+    });
 
     try {
       const url = constants.CREATE_RESOURCE_ALLOCATION.replace('{project_pk}', projectId as string);
@@ -300,15 +307,15 @@ export default function EmployeeManagement() {
                           <PopoverTrigger asChild>
                             <Button variant="outline">
                               {dates[employee.id]?.startDate
-                                ? dates[employee.id]?.startDate?.toLocaleDateString()
+                                ? format(dates[employee.id].startDate, 'yyyy-MM-dd')
                                 : "Start Date"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
-                              selected={dates[employee.id]?.startDate || undefined}
-                              onSelect={(date) => handleDateChange(employee.id, 'startDate', date || null)}
+                              selected={dates[employee.id]?.startDate}
+                              onSelect={(date) => handleDateChange(employee.id, 'startDate', date)}
                               initialFocus
                             />
                           </PopoverContent>
@@ -319,17 +326,16 @@ export default function EmployeeManagement() {
                           <PopoverTrigger asChild>
                             <Button variant="outline">
                               {dates[employee.id]?.endDate
-                                ? dates[employee.id]?.endDate?.toLocaleDateString()
+                                ? format(dates[employee.id].endDate, 'yyyy-MM-dd')
                                 : "End Date"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
-                              selected={dates[employee.id]?.endDate || undefined}
-                              onSelect={(date) => handleDateChange(employee.id, 'endDate', date || null)}
+                              selected={dates[employee.id]?.endDate}
+                              onSelect={(date) => handleDateChange(employee.id, 'endDate', date)}
                               initialFocus
-                              minDate={new Date()}
                             />
                           </PopoverContent>
                         </Popover>
