@@ -229,7 +229,6 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
             // @ts-ignore
             onSelect={(date) => handleDateChange(fieldName, date)}
             initialFocus
-            minDate={fieldName === 'allocation_end_date' ? new Date() : undefined}
           />
         </DialogContent>
       </Dialog>
