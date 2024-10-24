@@ -181,9 +181,10 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
 
         // Fetch the latest data after successful deletion
         // @ts-ignore
-        const latestData = await getEmployeeTimeline(employeeId);
+        // const latestData = await getEmployeeTimeline(employeeId);
 
-        setTimelineData(latestData);
+        // setTimelineData(latestData);
+        fetchTimelineData();
         onUpdateTimeline(); // Call this function to update the parent component
       } else {
         toast.error("Failed to delete the allocation. Please try again.");
