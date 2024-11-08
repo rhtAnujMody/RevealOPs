@@ -30,17 +30,18 @@ jobs:
       - name: Build project
         run: yarn build
 
-      - name: Check AWS Credentials
+      - name: Check AWS Credentials Are Set
         run: |
-          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
-            echo "AWS_ACCESS_KEY_ID is not set"
+          if [ -n "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "AWS_ACCESS_KEY_ID is set and masked."
           else
-            echo "AWS_ACCESS_KEY_ID is set"
+            echo "AWS_ACCESS_KEY_ID is not set."
           fi
-          if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-            echo "AWS_SECRET_ACCESS_KEY is not set"
+
+          if [ -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY is set and masked."
           else
-            echo "AWS_SECRET_ACCESS_KEY is set"
+            echo "AWS_SECRET_ACCESS_KEY is not set."
           fi
 
       # - name: Install AWS CLI
