@@ -25,8 +25,9 @@ const EditCustomer: React.FC = () => {
     contact_phone: '',
     contract_type: '',
     contract_start_date: '',
-    contract_end_date: '',
+    contract_end_date: null,
     msa_location: '',
+    status: 'Active',
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const getAllCustomers = useCustomerStore(state => state.getAllCustomers);
@@ -131,7 +132,19 @@ const EditCustomer: React.FC = () => {
   };
 
   const handleClearDate = (field: 'contract_start_date' | 'contract_end_date') => {
-    setFormData(prev => ({ ...prev, [field]: '' }));
+    setFormData(prev => ({ ...prev, [field]: null }));
+  };
+
+  const statusOptions = [
+    { label: "Active", value: "Active" },
+    { label: "Inactive", value: "Inactive" },
+  ];
+
+  const handleStatusChange = (value: string) => {
+    setFormData(prev => ({ ...prev, status: value }));
+    if (errors.status) {
+      setErrors(prev => ({ ...prev, status: [] }));
+    }
   };
 
   return (
@@ -210,6 +223,24 @@ const EditCustomer: React.FC = () => {
                         </Button>
                       )}
                     </div>
+                    {errors[key] && errors[key].map((error, index) => (
+                      <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                    ))}
+                  </div>
+                );
+              } else if (key === 'status') {
+                return (
+                  <div key={key} className="space-y-2">
+                    <label htmlFor={key} className="block text-sm font-medium text-gray-700">
+                      Status
+                    </label>
+                    <CommonDropdown
+                      items={statusOptions}
+                      onSelect={handleStatusChange}
+                      selectedValue={value}
+                      placeholder="Select status"
+                      className='w-full'
+                    />
                     {errors[key] && errors[key].map((error, index) => (
                       <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
                     ))}

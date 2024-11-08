@@ -24,9 +24,10 @@ import {
   ReloadIcon,
 } from "@radix-ui/react-icons";
 import { Eye } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { format, isBefore, isAfter, isWithinInterval } from 'date-fns';
 
 export default function ProjectDetails() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -112,8 +113,21 @@ export default function ProjectDetails() {
       setIsTimelineModalOpen(true);
     } catch (error) {
       console.error("Error fetching employee timeline:", error);
+      toast.error("Failed to fetch employee timeline");
     }
   };
+
+  const fetchTimelineData = async (resource: TResourceAllocation) => {
+    try {
+      const timeline = await getEmployeeTimeline(selectedEmployeeId);
+      setTimelineData(timeline);
+    } catch (error) {
+      console.error("Error fetching employee timeline:", error);
+      toast.error("Failed to fetch employee timeline");
+    }
+  };
+
+  
 
   const handleEditResource = (resource: TResourceAllocation) => {
     setSelectedResource(resource);
@@ -208,8 +222,24 @@ export default function ProjectDetails() {
     }
   };
 
+  const getStatusTag = (startDate: string | null, endDate: string | null) => {
+    const now = new Date();
+    const start = startDate ? new Date(startDate) : now;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (end && isBefore(end, now)) {
+      return <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">Completed</span>;
+    } else if (isWithinInterval(now, { start, end: end || now })) {
+      return <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs font-medium">Active</span>;
+    } else if (isAfter(start, now)) {
+      return <span className="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs font-medium">Upcoming</span>;
+    }
+    return null;
+  };
+
   const renderActionButtons = (resource: TResourceAllocation) => (
-    <div className="flex space-x-2">
+    <div className="flex items-center space-x-2 justify-end">
+      {getStatusTag(resource.allocation_start_date, resource.allocation_end_date)}
       <Button
         onClick={(e) => {
           e.stopPropagation();
@@ -218,7 +248,6 @@ export default function ProjectDetails() {
         variant="outline"
         size="sm"
         className="flex items-center"
-        isLoading={false}
       >
         <Pencil1Icon className="w-4 h-4 mr-1" />
         Edit
@@ -226,20 +255,15 @@ export default function ProjectDetails() {
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          console.log("Data passed to handleOpenTimelineModal:", resource);
           handleOpenTimelineModal(resource);
         }}
         variant="outline"
         size="sm"
-        className="items-center hidden"
+        className="flex items-center"
       >
         <Eye className="w-4 h-4 mr-1" />
         View Timeline
       </Button>
-      <DeleteButton
-        onDelete={() => handleDeleteResource(resource)}
-        itemName="resource allocation"
-      />
     </div>
   );
 
@@ -248,11 +272,13 @@ export default function ProjectDetails() {
     actions: renderActionButtons(resource),
   }));
 
-  // Convert resourceAllocationHeaders to the correct format
-  const formattedHeaders = resourceAllocationHeaders.map((header) => ({
-    key: header.key,
-    label: header.value,
-  }));
+  // Modify the formattedHeaders array to exclude the ID column
+  const formattedHeaders = resourceAllocationHeaders
+    .filter(header => header.key !== 'id')
+    .map((header) => ({
+      key: header.key,
+      label: header.value,
+    }));
 
   const handleEdit = () => {
     navigate(`/projects/${projectId}/edit`);
@@ -290,6 +316,11 @@ export default function ProjectDetails() {
 
   const totalPages = Math.ceil(resources.length / itemsPerPage);
 
+  const handleUpdateTimeline = useCallback(() => {
+    getProjectDetails();
+    getProjectAllocationDetails();
+  }, [getProjectDetails, getProjectAllocationDetails]);
+
   return (
     <div className="flex flex-1 flex-col overflow-y-auto">
       <div className="flex-1 space-y-6 ">
@@ -316,7 +347,7 @@ export default function ProjectDetails() {
               <Pencil1Icon className="w-4 h-4 mr-1" />
               Edit
             </Button>
-            <DeleteButton onDelete={handleDelete} itemName="project" />
+            {/* <DeleteButton onDelete={handleDelete} itemName="project" /> */}
           </div>
         </div>
 
@@ -412,13 +443,16 @@ export default function ProjectDetails() {
                     <AppTable
                       headers={[
                         ...formattedHeaders,
-                        { key: "actions", label: "Actions" },
+                        { key: "actions", label: "Actions", className: "text-right" },
                       ]}
-                      rows={paginatedResources.map((resource) => ({
-                        ...resource,
-                        bandwidth_allocated: resource.bandwidth_allocated ? `${resource.bandwidth_allocated}%` : 'N/A',
-                        actions: renderActionButtons(resource),
-                      }))}
+                      rows={paginatedResources.map((resource) => {
+                        const { id, ...rest } = resource; // Destructure to remove id
+                        return {
+                          ...rest,
+                          bandwidth_allocated: resource.bandwidth_allocated ? `${resource.bandwidth_allocated}%` : 'N/A',
+                          actions: renderActionButtons(resource),
+                        };
+                      })}
                       onClick={() => { }}
                     />
                   </div>
@@ -454,20 +488,20 @@ export default function ProjectDetails() {
             </div>
 
             {isTimelineModalOpen && selectedEmployeeId !== null && (
-              // @ts-ignore
               <EmployeeTimelineModal
                 isOpen={isTimelineModalOpen}
-                onClose={handleCloseTimelineModal}
-                // employeeId={selectedResource.id}
+                onClose={() => {
+                  setIsTimelineModalOpen(false);
+                  handleUpdateTimeline(); // Refresh data when modal is closed
+                }}
                 employeeId={selectedEmployeeId}
+                selectedEmployeeId={selectedEmployeeId}
                 employeeName={selectedEmployeeName || ""}
-                // employeeName={selectedResource.employee_name}
                 projectId={projectId}
                 isLoading={false}
                 timelineData={timelineData}
-                onUpdateTimeline={(updatedTimeline) =>
-                  setTimelineData(updatedTimeline)
-                }
+                onUpdateTimeline={handleUpdateTimeline}
+                fetchTimelineData={fetchTimelineData}
               />
             )}
 

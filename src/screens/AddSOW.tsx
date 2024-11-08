@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CalendarIcon, X } from "lucide-react";
+import { ArrowLeft, CalendarIcon, X, Upload } from "lucide-react";
 import { apiRequest } from "@/network/apis";
 import constants from "@/lib/constants";
 import { toast } from 'react-hot-toast';
@@ -23,11 +23,14 @@ const AddSOW: React.FC = () => {
     customer_spoc: '',
     reveal_spoc: '',
     business_unit: '',
-    contract_url: '',
+    sow_repository: '',
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [customers, setCustomers] = useState<{ label: string; value: string }[]>([]);
   const getAllSOW = useSOWStore(state => state.getAllSOW);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -86,26 +89,47 @@ const AddSOW: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      setFormData(prev => ({ ...prev, sow_repository: e.target.files[0].name }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const submitData = { ...formData };
-    // If end_date is empty, remove it from the submission data
-    if (!submitData.end_date) {
-      delete submitData.end_date;
+    const submitData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'end_date' || (key === 'end_date' && value)) {
+        submitData.append(key, value);
+      }
+    });
+
+    if (selectedFile) {
+      submitData.append('sow_repository', selectedFile);
     }
 
     try {
-      const response = await apiRequest(constants.ALL_SOWS, 'POST', submitData);
+      const response = await fetch(`${constants.API_URL}${constants.ALL_SOWS}`, {
+        method: 'POST',
+        body: submitData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const data = await response.json();
+
       if (response.ok) {
         toast.success('SOW added successfully');
         getAllSOW();
         navigate('/sows');
       } else {
-        if (response.error && typeof response.error === 'object') {
+        if (data.error && typeof data.error === 'object') {
           const apiErrors: Record<string, string[]> = {};
-          Object.entries(response.error).forEach(([key, value]) => {
+          Object.entries(data.error).forEach(([key, value]) => {
             apiErrors[key] = Array.isArray(value) ? value : [value as string];
           });
           setErrors(apiErrors);
@@ -185,7 +209,7 @@ const AddSOW: React.FC = () => {
               </div>
 
               {/* Other form fields */}
-              {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc', 'contract_url'].map((key) => (
+              {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc'].map((key) => (
                 <div key={key} className="space-y-2">
                   <label htmlFor={key} className="block text-sm font-medium text-gray-700">
                     {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -248,6 +272,38 @@ const AddSOW: React.FC = () => {
                   ))}
                 </div>
               ))}
+
+              {/* File input for SOW Repository */}
+              <div className="space-y-2">
+                <label htmlFor="sow_repository" className="block text-sm font-medium text-gray-700">
+                  Contract (PDF)
+                </label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="file"
+                    id="sow_repository"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    ref={fileInputRef}
+                    accept=".pdf"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {selectedFile ? 'Change File' : 'Upload SOW'}
+                  </Button>
+                  {selectedFile && (
+                    <span className="text-sm text-gray-600">{selectedFile.name}</span>
+                  )}
+                </div>
+                {errors.sow_repository && errors.sow_repository.map((error, index) => (
+                  <p key={index} className="text-destructive text-sm mt-1">{error}</p>
+                ))}
+              </div>
 
               <Button type="submit" className="w-full">Add SOW</Button>
             </form>

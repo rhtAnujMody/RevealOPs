@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { TimelineItem } from "@/lib/model";
 import { CalendarIcon, BriefcaseIcon, PercentIcon, DollarSignIcon, PencilIcon, CheckIcon, XIcon, Trash2Icon } from 'lucide-react';
@@ -20,7 +20,8 @@ interface EmployeeTimelineModalProps {
   projectId: string | undefined;
   isLoading: boolean;
   timelineData: TimelineItem[];
-  onUpdateTimeline: (updatedTimeline: TimelineItem[]) => void;
+  onUpdateTimeline: () => void;
+  fetchTimelineData: () => void;
 }
 
 const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
@@ -31,20 +32,21 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
   isLoading,
   timelineData: initialTimelineData,
   selectedEmployeeId,
+  fetchTimelineData,
   onUpdateTimeline,
 }) => {
   const [editingItem, setEditingItem] = useState<TimelineItem | null>(null);
   const [editedValues, setEditedValues] = useState<Partial<TimelineItem>>({});
-  const [timelineData, setTimelineData] = useState<TimelineItem[]>(initialTimelineData);
+  const [timelineData, setTimelineData] = useState<TimelineItem[]>([]);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<TimelineItem | null>(null);
   const [openDialogs, setOpenDialogs] = useState<{ [key: string]: boolean }>({});
-
-  // Update timelineData when props change
+  const [firstRender, setFirstRender] = useState(true);
+  // Set initial timeline data only when the component mounts
   useEffect(() => {
-    console.log('Timeline data updated:', initialTimelineData);
     setTimelineData(initialTimelineData);
   }, [initialTimelineData]);
+
   useEffect(() => {
     console.log('editedValues updated:', editedValues);
   }, [editedValues]);
@@ -85,13 +87,9 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
 
       if (response.ok && response.data) {
         toast.success("The allocation has been updated successfully.");
-
-        // Fetch the latest data after successful update
-        // @ts-ignore
-        const latestData = await getEmployeeTimeline(employeeId);
-
-        setTimelineData(latestData);
-        onUpdateTimeline(latestData);
+        fetchTimelineData();
+        onUpdateTimeline();
+        
         setEditingItem(null);
         setEditedValues({});
       } else {
@@ -102,7 +100,7 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
       toast.error("An error occurred while updating the allocation.");
     }
   };
-
+  console.log('timelineData', timelineData);
   const handleCancel = () => {
     setEditingItem(null);
     setEditedValues({});
@@ -183,10 +181,11 @@ const EmployeeTimelineModal: React.FC<EmployeeTimelineModalProps> = ({
 
         // Fetch the latest data after successful deletion
         // @ts-ignore
-        const latestData = await getEmployeeTimeline(employeeId);
+        // const latestData = await getEmployeeTimeline(employeeId);
 
-        setTimelineData(latestData);
-        onUpdateTimeline(latestData);
+        // setTimelineData(latestData);
+        fetchTimelineData();
+        onUpdateTimeline(); // Call this function to update the parent component
       } else {
         toast.error("Failed to delete the allocation. Please try again.");
       }

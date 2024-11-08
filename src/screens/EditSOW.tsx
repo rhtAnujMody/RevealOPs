@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CalendarIcon, X } from "lucide-react";
+import { ArrowLeft, CalendarIcon, X, Upload } from "lucide-react";
 import { apiRequest } from "@/network/apis";
 import constants from "@/lib/constants";
 import { toast } from 'react-hot-toast';
@@ -13,19 +13,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, isValid, parseISO } from 'date-fns';
 
-type FormData = {
-  customer: string;
-  sow_description: string;
-  sow_value: string;
-  start_date: string;
-  end_date: string | null | "Until Terminated";
-  customer_spoc: string;
-  reveal_spoc: string;
-  business_unit: string;
-  contract_url: string;
-};
 
-const EditSOW: React.FC = () => {
+interface EditSOWProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const EditSOW: React.FC<EditSOWProps> = ({ isOpen, onClose }) => {
   const { sowId } = useParams<{ sowId: string }>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
@@ -42,7 +36,10 @@ const EditSOW: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [customers, setCustomers] = useState<{ label: string; value: string }[]>([]);
   const getAllSOW = useSOWStore(state => state.getAllSOW);
-  const { data: sowData, getSOWDetails, setId } = useSOWDetailsStore();
+  const { data: sowDataState, getSOWDetails, setId } = useSOWDetailsStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (sowId) {
@@ -53,16 +50,16 @@ const EditSOW: React.FC = () => {
   }, [sowId, setId, getSOWDetails]);
 
   useEffect(() => {
-    if (sowData) {
-      const { sow_id, duration, customer_name, ...rest } = sowData;
+    if (sowDataState) {
+      const { sow_id, duration, customer_name, ...rest } = sowDataState;
       // @ts-ignore
       setFormData({
         ...rest,
-        customer: sowData.customer ? sowData.customer.toString() : '',
+        customer: sowDataState.customer ? sowDataState.customer.toString() : '',
         end_date: rest.end_date || null,
       });
     }
-  }, [sowData]);
+  }, [sowDataState]);
 
   const fetchCustomers = async () => {
     try {
@@ -117,39 +114,57 @@ const EditSOW: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    const submitData = { ...formData };
-    if (submitData.end_date === null) {
-      submitData.end_date = "Until Terminated";
-    }
+    setIsLoading(true);
 
     try {
-      const response = await apiRequest(`${constants.ALL_SOWS}${sowId}/`, 'PUT', submitData);
-      if (response.ok) {
-        toast.success('SOW updated successfully');
-        getAllSOW(1);
-        navigate(`/sows/${sowId}`);
-      } else {
-        if (response.error && typeof response.error === 'object') {
-          const apiErrors: Record<string, string[]> = {};
-          Object.entries(response.error).forEach(([key, value]) => {
-            apiErrors[key] = Array.isArray(value) ? value : [value as string];
-          });
-          setErrors(apiErrors);
-          const firstErrorField = Object.keys(apiErrors)[0];
-          if (firstErrorField) {
-            toast.error(apiErrors[firstErrorField][0]);
+      const formDataToSend = new FormData();
+
+      // Append all form fields to FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formDataToSend.append(key, value.toString());
+        }
+      });
+
+      // Append the file if selected
+      if (selectedFile) {
+        formDataToSend.append('sow_repository', selectedFile);
+      }
+
+      if (sowId) {
+        const response = await apiRequest(
+          constants.UPDATE_SOW.replace('{sow_id}', sowId),
+          'PUT',
+          formDataToSend,
+          {
+            'Content-Type': 'multipart/form-data',
           }
+        );
+
+        if (response.ok) {
+          toast.success('SOW updated successfully');
+          getAllSOW(1);
+          navigate(`/sows/${sowId}`);
         } else {
           toast.error('Failed to update SOW');
         }
+      } else {
+        toast.error('SOW ID is missing');
       }
     } catch (error) {
       console.error('Error updating SOW:', error);
       toast.error('An error occurred while updating the SOW');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -158,15 +173,29 @@ const EditSOW: React.FC = () => {
     { label: 'AI BU', value: 'AI BU' },
   ];
 
-  const formatDate = (dateString: string | null | "Until Terminated") => {
+  const formatDate = (dateString: string | null) => {
     if (!dateString) return '';
-    if (dateString === "Until Terminated") return dateString;
+    if (dateString === null) return dateString;
     const date = parseISO(dateString);
     return isValid(date) ? format(date, "PPP") : '';
   };
 
   const handleClearDate = (field: 'start_date' | 'end_date') => {
-    setFormData(prev => ({ ...prev, [field]: field === 'end_date' ? "Until Terminated" : null }));
+    setFormData(prev => ({ ...prev, [field]: field === 'end_date' ? null : null }));
+  };
+
+  const handleFilePick = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+      });
+
+      if (result.type === 'success') {
+        setSelectedFile(result);
+      }
+    } catch (error) {
+      console.error('Error picking file:', error);
+    }
   };
 
   return (
@@ -220,7 +249,7 @@ const EditSOW: React.FC = () => {
             </div>
 
             {/* Other form fields */}
-            {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc', 'contract_url'].map((key) => (
+            {['sow_description', 'sow_value', 'customer_spoc', 'reveal_spoc'].map((key) => (
               <div key={key} className="space-y-2">
                 <label htmlFor={key} className="block text-sm font-medium text-gray-700">
                   {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -251,9 +280,8 @@ const EditSOW: React.FC = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        className={`w-full justify-start text-left font-normal ${
-                          !formData[key as keyof typeof formData] && "text-muted-foreground"
-                        }`}
+                        className={`w-full justify-start text-left font-normal ${!formData[key as keyof typeof formData] && "text-muted-foreground"
+                          }`}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData[key as keyof typeof formData]
@@ -264,7 +292,7 @@ const EditSOW: React.FC = () => {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== "Until Terminated"
+                        selected={formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== null
                           ? parseISO(formData[key as keyof typeof formData] as string)
                           : undefined}
                         onSelect={(date) => handleDateChange(date, key as 'start_date' | 'end_date')}
@@ -272,7 +300,7 @@ const EditSOW: React.FC = () => {
                       />
                     </PopoverContent>
                   </Popover>
-                  {formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== "Until Terminated" && (
+                  {formData[key as keyof typeof formData] && formData[key as keyof typeof formData] !== null && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -288,6 +316,35 @@ const EditSOW: React.FC = () => {
                 ))}
               </div>
             ))}
+
+            {/* Add file input for contract */}
+            <div className="space-y-2">
+              <label htmlFor="contract" className="block text-sm font-medium text-gray-700">
+                Contract File
+              </label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="file"
+                  id="contract"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                  accept=".pdf,.doc,.docx"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {selectedFile ? 'Change File' : 'Upload Contract'}
+                </Button>
+                {selectedFile && (
+                  <span className="text-sm text-gray-600">{selectedFile.name}</span>
+                )}
+              </div>
+            </div>
 
             <Button type="submit" className="w-full">Update SOW</Button>
           </form>
