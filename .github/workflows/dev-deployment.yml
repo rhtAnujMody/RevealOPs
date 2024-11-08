@@ -30,6 +30,19 @@ jobs:
       - name: Build project
         run: yarn build
 
+      - name: Check AWS Credentials
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "AWS_ACCESS_KEY_ID is not set"
+          else
+            echo "AWS_ACCESS_KEY_ID is set"
+          fi
+          if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "AWS_SECRET_ACCESS_KEY is not set"
+          else
+            echo "AWS_SECRET_ACCESS_KEY is set"
+          fi
+
       # - name: Install AWS CLI
       #   run: |
       #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
