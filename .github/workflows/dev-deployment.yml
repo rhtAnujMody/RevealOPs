@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Choose the environment to deploy to (staging or development)"
+        description: "Choose the environment to deploy to (staging or Development)"
         required: true
         default: "Development"
 
@@ -30,11 +30,31 @@ jobs:
       - name: Build project
         run: yarn build
 
+      - name: Check AWS Credentials
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "AWS_ACCESS_KEY_ID is not set"
+          else
+            echo "AWS_ACCESS_KEY_ID is set"
+          fi
+          if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "AWS_SECRET_ACCESS_KEY is not set"
+          else
+            echo "AWS_SECRET_ACCESS_KEY is set"
+          fi
+
       # - name: Install AWS CLI
       #   run: |
       #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       #     unzip awscliv2.zip
       #     sudo ./aws/install
+
+      - name: Test AWS S3 Access
+        run: aws s3 ls s3://${{ secrets.S3_BUCKET_NAME }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Sync files to S3
         env:
@@ -42,4 +62,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --cache-control "public, max-age=31536000"
+          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --debug --cache-control "public, max-age=31536000"
