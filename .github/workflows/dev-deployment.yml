@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Choose the environment to deploy to (staging or development)"
+        description: "Choose the environment to deploy to (staging or Development)"
         required: true
         default: "Development"
 
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Specify the environment dynamically based on the input
-    environment: Development
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout code
