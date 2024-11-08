@@ -1,15 +1,19 @@
 name: Deploy to S3
 
-# on:
-#   push:
-#     branches:
-#       - main # Deploys when you push to the main branch
-
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose the environment to deploy to (staging or development)"
+        required: true
+        default: "Development"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    # Specify the environment dynamically based on the input
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout code
@@ -18,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "19" # Use the version that matches your project requirements
+          node-version: "^20.9.0"
 
       - name: Install dependencies
         run: yarn
@@ -26,10 +30,16 @@ jobs:
       - name: Build project
         run: yarn build
 
+      # - name: Install AWS CLI
+      #   run: |
+      #     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #     unzip awscliv2.zip
+      #     sudo ./aws/install
+
       - name: Sync files to S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --cache-control "public, max-age=31536000"
