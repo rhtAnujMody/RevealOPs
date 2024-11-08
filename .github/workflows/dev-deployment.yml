@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "19" # Use the version that matches your project requirements
+          node-version: "^20.9.0" # Use the version that matches your project requirements
 
       - name: Install dependencies
         run: yarn
