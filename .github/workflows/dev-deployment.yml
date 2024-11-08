@@ -1,9 +1,11 @@
 name: Deploy to S3
 
-on:
-  push:
-    branches:
-      - main # Deploys when you push to the main branch
+# on:
+#   push:
+#     branches:
+#       - main # Deploys when you push to the main branch
+
+on: workflow_dispatch
 
 jobs:
   deploy:
@@ -16,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16" # Use the version that matches your project requirements
+          node-version: "19" # Use the version that matches your project requirements
 
       - name: Install dependencies
         run: yarn
