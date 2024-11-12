@@ -51,8 +51,9 @@ export default function ResourceAllocation() {
   const [projectStartDate, setProjectStartDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    getAllEmployees();
-  }, [search]);
+    const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
+    getAllEmployees(formattedDate);
+  }, [search, projectStartDate]);
 
   const handleEmployeeClick = async (employee: TEmployee) => {
     setSelectedEmployeeId(employee.id);
@@ -81,8 +82,9 @@ export default function ResourceAllocation() {
   };
 
   const handleUpdateTimeline = useCallback(() => {
-    getAllEmployees();
-  }, [getAllEmployees]);
+    const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
+    getAllEmployees(formattedDate);
+  }, [getAllEmployees, projectStartDate]);
 
   const BillableArray = [
     { label: 'Yes', value: 'Yes' },

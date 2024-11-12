@@ -10,19 +10,19 @@ const useEmployeeStore = create<TEmployeeStore>((set, get) => ({
   headers: [],
   search: "",
   setSearch: (search) => set({ search: search }),
-  getAllEmployees: async () => {
+  getAllEmployees: async (date: string) => {
     set({ isLoading: true });
-    const response = await apiRequest<TEmployee[]>(
-      get().search
-        ? `${constants.ALL_EMPLOYEES}?search=${get().search}`
-        : constants.ALL_EMPLOYEES,
-      "GET"
-    );
-    if (response.ok) {
-      set({
-        isLoading: false,
-        data: response.data,
-      });
+    try {
+      const response = await apiRequest(
+        `${constants.ALL_EMPLOYEES}?date=${date}`,
+        'GET'
+      );
+      if (response.ok) {
+        set({ data: response.data, isLoading: false });
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      set({ isLoading: false });
     }
   },
   getEmployeeTimeline: async (employeeId: number) => {
