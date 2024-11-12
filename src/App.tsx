@@ -17,6 +17,7 @@ import { Toaster } from 'react-hot-toast';
 import EditCustomer from "./screens/EditCustomer";
 import AddProject from "./screens/AddProject";
 import EditProject from "./screens/EditProject";
+import EmployeesList from "./screens/EmployeesList";
 
 function App() {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ function App() {
           <Route path="projects/:projectId" element={<ProjectDetails />} />
           <Route path="projects/:projectId/edit" element={<EditProject />} />
           <Route path="projects/:projectId/resource-allocation" element={<ResourceAllocation />} />
+          <Route path="employees" element={<EmployeesList />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />
