@@ -26,7 +26,7 @@ import EmployeeTimelineModal from "./EmployeeTimelineModal";
 import { format, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 
-export default function EmployeeManagement() {
+export default function ResourceAllocation() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
     (state: TEmployeeStore) => ({
       isLoading: state.isLoading,

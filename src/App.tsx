@@ -10,7 +10,7 @@ import SOWDetails from "./screens/SOWDetails";
 import AddSOW from "./screens/AddSOW";
 import EditSOW from "./screens/EditSOW";
 import useNavigationStore from "./stores/useNavigationStore";
-import EmployeeManagement from "./screens/EmployeeManagement";
+import ResourceAllocation from "./screens/ResourceAllocation";
 import CustomerDetails from "./screens/CustomerDetails";
 import AddCustomer from "./screens/AddCustomer";
 import { Toaster } from 'react-hot-toast';
@@ -40,7 +40,7 @@ function App() {
           <Route path="projects/add" element={<AddProject />} />
           <Route path="projects/:projectId" element={<ProjectDetails />} />
           <Route path="projects/:projectId/edit" element={<EditProject />} />
-          <Route path="projects/:projectId/resource-allocation" element={<EmployeeManagement />} />
+          <Route path="projects/:projectId/resource-allocation" element={<ResourceAllocation />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />
