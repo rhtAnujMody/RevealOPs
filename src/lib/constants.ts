@@ -1,5 +1,7 @@
+const API_URL = "http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/";
+
 export default {
-  API_URL: "http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/",
+  API_URL,
   // API_URL: "https://reveal-ops-prod-339068582.ap-south-1.elb.amazonaws.com/",
   TOKEN: "token",
   REFRESH: "refresh",
@@ -17,4 +19,8 @@ export default {
   UPDATE_PROJECT_ALLOCATION: '/api/projects/{project_id}/allocations/{allocation_id}/',
   SOW_DETAILS: `api/sows/{sow_id}/`,
   UPDATE_SOW: `api/sows/{sow_id}/`,
+  ALL_ALLOCATIONS: "api/allocations/",
+  EMPLOYEE_SKILLS: "api/employee-skills/",
+  EMPLOYEE_SKILLS_ADD: `${API_URL}api/employee-skills/{employee_id}/add_skill/`,
+  EMPLOYEE_SKILLS_REMOVE: `${API_URL}api/employee-skills/{employee_id}/remove_skill/`,
 };

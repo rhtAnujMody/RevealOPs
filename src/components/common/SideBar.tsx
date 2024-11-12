@@ -7,6 +7,7 @@ import {
   Users,
   FileText,
   Briefcase,
+  BookUser
 } from "lucide-react";
 
 export default function SideBar() {
@@ -44,6 +45,11 @@ export default function SideBar() {
       link: "/projects",
       header: "Projects",
       icon: Briefcase,
+    },
+    {
+      link: "/employees",
+      header: "Employees",
+      icon: BookUser,
     },
   ];
 
