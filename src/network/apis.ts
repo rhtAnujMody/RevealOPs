@@ -9,11 +9,15 @@ export const apiRequest = async <T>(
 ): Promise<{ ok: boolean; data?: T; error?: any; headers?: Record<string, string> }> => {
   try {
     const token = localStorage.getItem(constants.TOKEN);
+    const authHeaders: HeadersInit = {};
+    if (token) {
+      authHeaders['Authorization'] = `Bearer ${token}`;
+    }
     const response = await fetch(`${constants.API_URL}${endpoint}`, {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        ...authHeaders,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
