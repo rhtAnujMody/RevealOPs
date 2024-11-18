@@ -235,7 +235,7 @@ function SetPassword() {
         <div className="absolute inset-0 bg-pattern opacity-10"></div>
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="text-white space-y-6 max-w-2xl">
-            <h3 className="text-4xl font-bold">Welcome to Our Platform</h3>
+            <h3 className="text-4xl font-bold">Welcome to Operations Management</h3>
             <p className="text-lg text-white/80">
               Set up your secure password to start managing your projects and resources efficiently.
             </p>
