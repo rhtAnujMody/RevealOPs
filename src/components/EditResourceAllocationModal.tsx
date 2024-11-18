@@ -52,6 +52,10 @@ export default function EditResourceAllocationModal({
     onSave(editedResource);
   };
 
+  const handleClearEndDate = () => {
+    setEditedResource(prev => ({ ...prev, allocation_end_date: null }));
+  };
+
   const allocationOptions = [
     { label: '25%', value: '25' },
     { label: '50%', value: '50' },
@@ -127,22 +131,39 @@ export default function EditResourceAllocationModal({
               <label htmlFor="allocation_end_date" className="text-sm font-medium text-gray-700 mb-1">
                 End Date
               </label>
-              <Dialog open={openDialogs.endDate} onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, endDate: open }))}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formatDateForDisplay(editedResource.allocation_end_date)}
+              <div className="flex w-full gap-2">
+                <div className="flex-grow">
+                  <Dialog 
+                    open={openDialogs.endDate} 
+                    onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, endDate: open }))}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formatDateForDisplay(editedResource.allocation_end_date)}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="w-fit">
+                      <Calendar
+                        mode="single"
+                        selected={editedResource.allocation_end_date ? parseISO(editedResource.allocation_end_date) : undefined}
+                        onSelect={(date) => handleDateChange(date, 'allocation_end_date')}
+                        initialFocus
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                {editedResource.allocation_end_date && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleClearEndDate}
+                    className="w-[60px]"
+                  >
+                    ✕
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="w-fit">
-                  <Calendar
-                    mode="single"
-                    selected={editedResource.allocation_end_date ? parseISO(editedResource.allocation_end_date) : undefined}
-                    onSelect={(date) => handleDateChange(date, 'allocation_end_date')}
-                    initialFocus
-                  />
-                </DialogContent>
-              </Dialog>
+                )}
+              </div>
             </div>
             <div className="flex flex-col">
               <label htmlFor="role" className="text-sm font-medium text-gray-700 mb-1">
