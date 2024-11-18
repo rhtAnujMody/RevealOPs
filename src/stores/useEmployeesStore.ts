@@ -19,7 +19,7 @@ const useEmployeeStore = create<TEmployeeStore>((set, get) => ({
   getAllEmployees: async ({ date, search }: GetEmployeesParams) => {
     set({ isLoading: true });
     try {
-      const url = `${constants.ALL_EMPLOYEES}?date=${date}${search ? `&search=${search}` : ''}`;
+      const url = `${constants.ALL_EMPLOYEES}?date=${date}${search ? `&search=${search.trim()}` : ''}`;
       const response = await apiRequest(url, 'GET');
       if (response.ok) {
         // const data = await response.json();

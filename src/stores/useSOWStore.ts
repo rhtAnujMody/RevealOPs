@@ -27,7 +27,7 @@ const useSOWStore = create<TSOWStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await apiRequest<TSOW[]>(
-        `${constants.ALL_SOWS}?page=${page}${get().search ? `&search=${get().search}` : ''}`,
+        `${constants.ALL_SOWS}?page=${page}${get().search ? `&search=${get().search.trim()}` : ''}`,
         "GET"
       );
       console.log("API Response Headers:", response.headers);

@@ -26,7 +26,7 @@ const useCustomerStore = create<TCustomerStore>((set, get) => ({
     set({ isLoading: true });
     const response = await apiRequest<TCustomer[]>(
       get().search
-        ? `${constants.ALL_CUSTOMERS}?search=${get().search}&page=${page}`
+        ? `${constants.ALL_CUSTOMERS}?search=${get().search.trim()}&page=${page}`
         : `${constants.ALL_CUSTOMERS}?page=${page}`,
       "GET"
     );
