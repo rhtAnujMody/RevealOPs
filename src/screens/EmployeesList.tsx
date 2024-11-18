@@ -205,6 +205,7 @@ export default function EmployeesList() {
             { label: "All", value: "" },
             { label: "On Bench", value: "on_bench" },
             { label: "Allocated", value: "allocated" },
+            { label: "Partially Allocated", value: "partially_allocated" }
           ]}
           onSelect={(value) => setFilters({ availability: value })}
           selectedValue={filters.availability || ""}
