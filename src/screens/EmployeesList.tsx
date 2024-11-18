@@ -52,8 +52,8 @@ export default function EmployeesList() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setLocalSearch(value);
-    debouncedSetSearch(value);
+    setLocalSearch(value.trim());
+    debouncedSetSearch(value.trim());
   };
 
   const handleClearSearch = () => {
