@@ -25,6 +25,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import EmployeeTimelineModal from "./EmployeeTimelineModal";
 import { format, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
+import debounce from 'lodash/debounce';
 
 export default function ResourceAllocation() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
@@ -52,8 +53,8 @@ export default function ResourceAllocation() {
 
   useEffect(() => {
     const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
-    getAllEmployees(formattedDate);
-  }, [search, projectStartDate]);
+    getAllEmployees({ date: formattedDate, search });
+  }, [search, projectStartDate, getAllEmployees]);
 
   const handleEmployeeClick = async (employee: TEmployee) => {
     setSelectedEmployeeId(employee.id);
@@ -83,8 +84,8 @@ export default function ResourceAllocation() {
 
   const handleUpdateTimeline = useCallback(() => {
     const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
-    getAllEmployees(formattedDate);
-  }, [getAllEmployees, projectStartDate]);
+    getAllEmployees({ date: formattedDate, search });
+  }, [getAllEmployees, projectStartDate, search]);
 
   const BillableArray = [
     { label: 'Yes', value: 'Yes' },
@@ -212,9 +213,13 @@ export default function ResourceAllocation() {
     navigate(-1); // This will go back to the previous page in the browser history
   };
 
-  // const handleUpdateTimeline = (updatedTimeline: TimelineItem[]) => {
-  //   setTimelineData(updatedTimeline);
-  // };
+  // Debounced search handler
+  const debouncedSetSearch = useCallback(
+    debounce((value: string) => {
+      setSearch(value);
+    }, 80),
+    []
+  );
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -242,7 +247,7 @@ export default function ResourceAllocation() {
                 placeholder="Search by Name and Role"
                 className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => debouncedSetSearch(e.target.value)}
               />
               <Search className="absolute left-3 top-[calc(50%+12px)] transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             </div>
