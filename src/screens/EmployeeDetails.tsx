@@ -699,13 +699,24 @@ export default function EmployeeDetails() {
                     </div>
                     <div className="flex items-center space-x-2">
                       {getStatusTag(item.allocation_start_date, item.allocation_end_date)}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="text-sm text-gray-600">
+                      {format(new Date(item.allocation_start_date), 'MMM d, yyyy')} - {format(new Date(item.allocation_end_date), 'MMM d, yyyy')}
+                    </div>
+                    <div className="flex items-center gap-2">
                       <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs">
                         {item.bandwidth_allocated}% Allocated
                       </span>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        item.billable === "Yes" 
+                          ? "bg-green-50 text-green-700" 
+                          : "bg-gray-50 text-gray-700"
+                      }`}>
+                        {item.billable === "Yes" ? "Billable" : "Non-Billable"}
+                      </span>
                     </div>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {format(new Date(item.allocation_start_date), 'MMM d, yyyy')} - {format(new Date(item.allocation_end_date), 'MMM d, yyyy')}
                   </div>
                 </div>
               ))
