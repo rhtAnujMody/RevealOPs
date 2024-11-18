@@ -76,6 +76,7 @@ interface AddSkillFormData {
   skill_id: number;
   competency: string;
   category: string;
+  certification_name?: string;
 }
 
 interface SkillOption {
@@ -111,6 +112,7 @@ export default function EmployeeDetails() {
     skill_id: 0,
     competency: "",
     category: "primary_skills",
+    certification_name: "",
   });
   const [isEditingSkills, setIsEditingSkills] = useState(false);
   const [availableSkills, setAvailableSkills] = useState<SkillOption[]>([]);
@@ -236,6 +238,48 @@ export default function EmployeeDetails() {
 
   const handleAddSkill = async () => {
     try {
+      if (newSkill.category === "certifications") {
+        if (!newSkill.certification_name) {
+          toast.error("Please enter certification name");
+          return;
+        }
+
+        // Create request body for certification
+        const requestBody: Partial<SkillMatrixUpdateRequest> = {
+          certifications: [newSkill.certification_name]
+        };
+
+        // Make the PATCH request
+        const response = await apiRequest(
+          `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/`,
+          "PATCH",
+          requestBody
+        );
+
+        if (response.ok) {
+          toast.success("Certification added successfully");
+          // Refresh skill matrix
+          const skillsResponse = await apiRequest<SkillMatrix>(
+            `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/`,
+            "GET"
+          );
+          if (skillsResponse.ok) {
+            setSkillMatrix(skillsResponse.data || null);
+          }
+          setIsAddingSkill(false);
+          // Reset form
+          setNewSkill({
+            skill_id: 0,
+            competency: "",
+            category: "primary_skills",
+            certification_name: "",
+          });
+        } else {
+          toast.error("Failed to add certification");
+        }
+        return;
+      }
+
       if (!newSkill.skill_id) {
         toast.error("Please select a skill");
         return;
@@ -312,6 +356,7 @@ export default function EmployeeDetails() {
           skill_id: 0,
           competency: "",
           category: "primary_skills",
+          certification_name: "",
         });
       } else {
         toast.error("Failed to add skill");
@@ -470,7 +515,14 @@ export default function EmployeeDetails() {
                         <Select
                           value={newSkill.category}
                           onValueChange={(value: string) =>
-                            setNewSkill({ ...newSkill, category: value })
+                            setNewSkill({ 
+                              ...newSkill, 
+                              category: value,
+                              // Reset other fields when changing category
+                              skill_id: 0,
+                              competency: "",
+                              certification_name: "" 
+                            })
                           }
                         >
                           <SelectTrigger>
@@ -481,63 +533,82 @@ export default function EmployeeDetails() {
                             <SelectItem value="secondary_skills">Secondary Skills</SelectItem>
                             <SelectItem value="other_skills">Other Skills</SelectItem>
                             <SelectItem value="cloud_skills">Cloud Skills</SelectItem>
+                            <SelectItem value="certifications">Certification</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium">Skill</label>
-                        <Select
-                          value={newSkill.skill_id.toString()}
-                          onValueChange={(value: string) =>
-                            setNewSkill({ ...newSkill, skill_id: parseInt(value) })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select skill" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <div className="px-3 py-2 sticky top-0 bg-white border-b">
-                              <input
-                                className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                                placeholder="Search skills..."
-                                value={skillSearchQuery}
-                                onChange={(e) => setSkillSearchQuery(e.target.value)}
-                              />
-                            </div>
-                            <div className="max-h-[200px] overflow-y-auto">
-                              {availableSkills
-                                .filter((skill) =>
-                                  skill.skill_name.toLowerCase().includes(skillSearchQuery.toLowerCase())
-                                )
-                                .map((skill) => (
-                                  <SelectItem key={skill.skill_id} value={skill.skill_id.toString()}>
-                                    {skill.skill_name}
-                                  </SelectItem>
-                                ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Competency</label>
-                        <Select
-                          value={newSkill.competency}
-                          onValueChange={(value: string) =>
-                            setNewSkill({ ...newSkill, competency: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select competency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">Intermediate</SelectItem>
-                            <SelectItem value="Expert">Expert</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+
+                      {newSkill.category === "certifications" ? (
+                        <div>
+                          <label className="text-sm font-medium">Certification Name</label>
+                          <input
+                            type="text"
+                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            value={newSkill.certification_name}
+                            onChange={(e) =>
+                              setNewSkill({ ...newSkill, certification_name: e.target.value })
+                            }
+                            placeholder="Enter certification name"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div>
+                            <label className="text-sm font-medium">Skill</label>
+                            <Select
+                              value={newSkill.skill_id.toString()}
+                              onValueChange={(value: string) =>
+                                setNewSkill({ ...newSkill, skill_id: parseInt(value) })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select skill" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <div className="px-3 py-2 sticky top-0 bg-white border-b">
+                                  <input
+                                    className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                    placeholder="Search skills..."
+                                    value={skillSearchQuery}
+                                    onChange={(e) => setSkillSearchQuery(e.target.value)}
+                                  />
+                                </div>
+                                <div className="max-h-[200px] overflow-y-auto">
+                                  {availableSkills
+                                    .filter((skill) =>
+                                      skill.skill_name.toLowerCase().includes(skillSearchQuery.toLowerCase())
+                                    )
+                                    .map((skill) => (
+                                      <SelectItem key={skill.skill_id} value={skill.skill_id.toString()}>
+                                        {skill.skill_name}
+                                      </SelectItem>
+                                    ))}
+                                </div>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Competency</label>
+                            <Select
+                              value={newSkill.competency}
+                              onValueChange={(value: string) =>
+                                setNewSkill({ ...newSkill, competency: value })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select competency" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Beginner">Beginner</SelectItem>
+                                <SelectItem value="Intermediate">Intermediate</SelectItem>
+                                <SelectItem value="Expert">Expert</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      )}
                       <Button onClick={handleAddSkill} className="w-full">
-                        Add Skill
+                        Add {newSkill.category === "certifications" ? "Certification" : "Skill"}
                       </Button>
                     </div>
                   </DialogContent>
