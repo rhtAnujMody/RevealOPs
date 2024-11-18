@@ -22,26 +22,32 @@ export const apiRequest = async <T>(
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    const data = await response.json();
-    
-    // Get pagination headers
-    const headers: Record<string, string> = {};
-    headers['total-pages'] = response.headers.get('total-pages') || '1';
-    headers['current-page'] = response.headers.get('current-page') || '1';
+    if(response.status === 204) {
+      return { ok: true, data: null as T };
+    }else{
+      const data = await response.json();
+      // Get pagination headers
+      const headers: Record<string, string> = {};
+      headers['total-pages'] = response.headers.get('total-pages') || '1';
+      headers['current-page'] = response.headers.get('current-page') || '1';
 
-    console.log('API Response:', { 
-      endpoint, 
-      status: response.status, 
-      data,
-      headers: headers
-    });
+      console.log('API Response:', { 
+        endpoint, 
+        status: response.status, 
+        data,
+        headers: headers
+      });
 
     return {
       ok: response.ok,
       data: response.ok ? data : undefined,
       error: !response.ok ? data : undefined,
-      headers: headers
-    };
+        headers: headers
+      };    
+    }
+
+    
+    
   } catch (error) {
     console.error('API Request Error:', error);
     return { ok: false, error };

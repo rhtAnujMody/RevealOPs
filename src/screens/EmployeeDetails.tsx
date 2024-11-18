@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MultiSelect } from "react-multi-select-component";
 
 interface EmployeeDetails {
   id: number;
@@ -72,9 +73,30 @@ interface TimelineItem {
 }
 
 interface AddSkillFormData {
-  skill: string;
+  skill_id: number;
   competency: string;
   category: string;
+}
+
+interface SkillOption {
+  id: number;
+  name: string;
+  skill_name: string;
+  skill_id: number;
+}
+
+interface SkillMatrixUpdateRequest {
+  primary_skills: SkillRequest[];
+  secondary_skills: SkillRequest[];
+  cloud_skills: SkillRequest[];
+  other_skills: SkillRequest[];
+  certifications: string[];
+}
+
+interface SkillRequest {
+  skill: string;
+  competency: string;
+  skill_type: "Primary" | "Secondary" | "Cloud" | "Other";
 }
 
 export default function EmployeeDetails() {
@@ -86,11 +108,13 @@ export default function EmployeeDetails() {
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState<AddSkillFormData>({
-    skill: "",
+    skill_id: 0,
     competency: "",
     category: "primary_skills",
   });
   const [isEditingSkills, setIsEditingSkills] = useState(false);
+  const [availableSkills, setAvailableSkills] = useState<SkillOption[]>([]);
+  const [skillSearchQuery, setSkillSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,6 +166,29 @@ export default function EmployeeDetails() {
     }
   }, [employeeId]);
 
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await apiRequest<SkillOption[]>(
+          `${constants.SKILLS}`,
+          "GET"
+        );
+        if (response.ok && response.data) {
+          setAvailableSkills(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching skills:", error);
+        toast.error("Failed to fetch skills");
+      }
+    };
+
+    if (isAddingSkill) {
+      fetchSkills();
+    } else {
+      setSkillSearchQuery("");
+    }
+  }, [isAddingSkill]);
+
   const handleBackClick = () => {
     navigate(-1);
   };
@@ -189,15 +236,69 @@ export default function EmployeeDetails() {
 
   const handleAddSkill = async () => {
     try {
+      if (!newSkill.skill_id) {
+        toast.error("Please select a skill");
+        return;
+      }
+
+      const selectedSkill = availableSkills.find(
+        (skill) => skill.skill_id === newSkill.skill_id
+      );
+
+      if (!selectedSkill) {
+        toast.error("Selected skill not found");
+        return;
+      }
+
+      // Create request body with only the new skill in the appropriate category
+      const requestBody: Partial<SkillMatrixUpdateRequest> = {};
+
+      const skillType = newSkill.category === "primary_skills" ? "Primary" :
+                       newSkill.category === "secondary_skills" ? "Secondary" :
+                       newSkill.category === "cloud_skills" ? "Cloud" : "Other";
+
+      // Add only the new skill to the appropriate category
+      switch (newSkill.category) {
+        case "primary_skills":
+          requestBody.primary_skills = [{
+            skill: selectedSkill.skill_name,
+            competency: newSkill.competency,
+            skill_type: skillType as "Primary"
+          }];
+          break;
+        case "secondary_skills":
+          requestBody.secondary_skills = [{
+            skill: selectedSkill.skill_name,
+            competency: newSkill.competency,
+            skill_type: skillType as "Secondary"
+          }];
+          break;
+        case "cloud_skills":
+          requestBody.cloud_skills = [{
+            skill: selectedSkill.skill_name,
+            competency: newSkill.competency,
+            skill_type: skillType as "Cloud"
+          }];
+          break;
+        case "other_skills":
+          requestBody.other_skills = [{
+            skill: selectedSkill.skill_name,
+            competency: newSkill.competency,
+            skill_type: skillType as "Other"
+          }];
+          break;
+      }
+
+      // Make the PATCH request using employee's ID
       const response = await apiRequest(
-        `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/add_skill/`,
-        "POST",
-        newSkill
+        `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/`,
+        "PATCH",
+        requestBody
       );
 
       if (response.ok) {
         toast.success("Skill added successfully");
-        // Refresh skill matrix
+        // Refresh skill matrix using employee's ID
         const skillsResponse = await apiRequest<SkillMatrix>(
           `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/`,
           "GET"
@@ -206,6 +307,12 @@ export default function EmployeeDetails() {
           setSkillMatrix(skillsResponse.data || null);
         }
         setIsAddingSkill(false);
+        // Reset form
+        setNewSkill({
+          skill_id: 0,
+          competency: "",
+          category: "primary_skills",
+        });
       } else {
         toast.error("Failed to add skill");
       }
@@ -215,13 +322,20 @@ export default function EmployeeDetails() {
     }
   };
 
-  const handleRemoveSkill = async (skillId: number, category: string) => {
+  const handleRemoveSkill = async (skillId: number, category: string, isCertification: boolean = false, certificationIndex?: number) => {
     try {
-      const response = await apiRequest(
-        `${constants.EMPLOYEE_SKILLS}${employeeData?.id}/remove_skill/`,
-        "POST",
-        { skill_id: skillId, category }
-      );
+      let response;
+      if (isCertification) {
+        response = await apiRequest(
+          `${constants.EMPLOYEE_SKILLS}${skillMatrix?.employee_skill_id}/certification/${certificationIndex}/`,
+          "DELETE"
+        );
+      } else {
+        response = await apiRequest(
+          `${constants.EMPLOYEE_SKILLS}${skillMatrix?.employee_skill_id}/skill/${skillId}/`,
+          "DELETE"
+        );
+      }
 
       if (response.ok) {
         toast.success("Skill removed successfully");
@@ -372,14 +486,37 @@ export default function EmployeeDetails() {
                       </div>
                       <div>
                         <label className="text-sm font-medium">Skill</label>
-                        <input
-                          type="text"
-                          className="w-full border rounded-md p-2 mt-1"
-                          value={newSkill.skill}
-                          onChange={(e) =>
-                            setNewSkill({ ...newSkill, skill: e.target.value })
+                        <Select
+                          value={newSkill.skill_id.toString()}
+                          onValueChange={(value: string) =>
+                            setNewSkill({ ...newSkill, skill_id: parseInt(value) })
                           }
-                        />
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select skill" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <div className="px-3 py-2 sticky top-0 bg-white border-b">
+                              <input
+                                className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="Search skills..."
+                                value={skillSearchQuery}
+                                onChange={(e) => setSkillSearchQuery(e.target.value)}
+                              />
+                            </div>
+                            <div className="max-h-[200px] overflow-y-auto">
+                              {availableSkills
+                                .filter((skill) =>
+                                  skill.skill_name.toLowerCase().includes(skillSearchQuery.toLowerCase())
+                                )
+                                .map((skill) => (
+                                  <SelectItem key={skill.skill_id} value={skill.skill_id.toString()}>
+                                    {skill.skill_name}
+                                  </SelectItem>
+                                ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <label className="text-sm font-medium">Competency</label>
@@ -409,113 +546,135 @@ export default function EmployeeDetails() {
             </div>
           </div>
           <div className="p-4 space-y-4 w-full">
-            {skillMatrix && skillMatrix.primary_skills && skillMatrix.primary_skills.length > 0 && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Primary Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillMatrix.primary_skills.map((skill) => (
-                    <div
-                      key={skill.skill_id}
-                      className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {skill.skill} - {skill.competency}
-                      {isEditingSkills && (
-                        <button
-                          onClick={() => handleRemoveSkill(skill.skill_id, "primary_skills")}
-                          className="hover:text-blue-900"
+            {(!skillMatrix || 
+              ((!skillMatrix.primary_skills || skillMatrix.primary_skills.length === 0) &&
+               (!skillMatrix.secondary_skills || skillMatrix.secondary_skills.length === 0) &&
+               (!skillMatrix.other_skills || skillMatrix.other_skills.length === 0) &&
+               (!skillMatrix.cloud_skills || skillMatrix.cloud_skills.length === 0) &&
+               (!skillMatrix.certifications || skillMatrix.certifications.length === 0))) ? (
+              <p className="text-center text-gray-500">No skills found</p>
+            ) : (
+              <>
+                {skillMatrix && skillMatrix.primary_skills && skillMatrix.primary_skills.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Primary Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillMatrix.primary_skills.map((skill) => (
+                        <div
+                          key={skill.skill_id}
+                          className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Cross2Icon className="w-4 h-4" />
-                        </button>
-                      )}
+                          {skill.skill} - {skill.competency}
+                          {isEditingSkills && (
+                            <button
+                              onClick={() => handleRemoveSkill(skill.skill_id, "primary_skills")}
+                              className="hover:text-blue-900"
+                            >
+                              <Cross2Icon className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {skillMatrix && skillMatrix.secondary_skills && skillMatrix.secondary_skills.length > 0 && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Secondary Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillMatrix.secondary_skills.map((skill) => (
-                    <div
-                      key={skill.skill_id}
-                      className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {skill.skill} - {skill.competency}
-                      {isEditingSkills && (
-                        <button
-                          onClick={() => handleRemoveSkill(skill.skill_id, "secondary_skills")}
-                          className="hover:text-green-900"
+                  </div>
+                )}
+                
+                {skillMatrix && skillMatrix.secondary_skills && skillMatrix.secondary_skills.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Secondary Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillMatrix.secondary_skills.map((skill) => (
+                        <div
+                          key={skill.skill_id}
+                          className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Cross2Icon className="w-4 h-4" />
-                        </button>
-                      )}
+                          {skill.skill} - {skill.competency}
+                          {isEditingSkills && (
+                            <button
+                              onClick={() => handleRemoveSkill(skill.skill_id, "secondary_skills")}
+                              className="hover:text-green-900"
+                            >
+                              <Cross2Icon className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {skillMatrix && skillMatrix.other_skills && skillMatrix.other_skills.length > 0 && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Other Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillMatrix.other_skills.map((skill) => (
-                    <div
-                      key={skill.skill_id}
-                      className="bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {skill.skill} - {skill.competency}
-                      {isEditingSkills && (
-                        <button
-                          onClick={() => handleRemoveSkill(skill.skill_id, "other_skills")}
-                          className="hover:text-gray-900"
+                  </div>
+                )}
+                
+                {skillMatrix && skillMatrix.other_skills && skillMatrix.other_skills.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Other Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillMatrix.other_skills.map((skill) => (
+                        <div
+                          key={skill.skill_id}
+                          className="bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Cross2Icon className="w-4 h-4" />
-                        </button>
-                      )}
+                          {skill.skill} - {skill.competency}
+                          {isEditingSkills && (
+                            <button
+                              onClick={() => handleRemoveSkill(skill.skill_id, "other_skills")}
+                              className="hover:text-gray-900"
+                            >
+                              <Cross2Icon className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {skillMatrix && skillMatrix.cloud_skills && skillMatrix.cloud_skills.length > 0 && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Cloud Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillMatrix.cloud_skills.map((skill) => (
-                    <div
-                      key={skill.skill_id}
-                      className="bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {skill.skill} - {skill.competency}
-                      {isEditingSkills && (
-                        <button
-                          onClick={() => handleRemoveSkill(skill.skill_id, "cloud_skills")}
-                          className="hover:text-orange-900"
+                  </div>
+                )}
+                
+                {skillMatrix && skillMatrix.cloud_skills && skillMatrix.cloud_skills.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Cloud Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillMatrix.cloud_skills.map((skill) => (
+                        <div
+                          key={skill.skill_id}
+                          className="bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Cross2Icon className="w-4 h-4" />
-                        </button>
-                      )}
+                          {skill.skill} - {skill.competency}
+                          {isEditingSkills && (
+                            <button
+                              onClick={() => handleRemoveSkill(skill.skill_id, "cloud_skills")}
+                              className="hover:text-orange-900"
+                            >
+                              <Cross2Icon className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {skillMatrix && skillMatrix.certifications && skillMatrix.certifications.length > 0 && (
-              <div>
-                <h3 className="text-base font-semibold mb-2">Certifications</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillMatrix.certifications.map((cert, index) => (
-                    <div key={index} className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm">
-                      {cert}
+                  </div>
+                )}
+                
+                {skillMatrix && skillMatrix.certifications && skillMatrix.certifications.length > 0 && (
+                  <div>
+                    <h3 className="text-base font-semibold mb-2">Certifications</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {skillMatrix.certifications.map((cert, index) => (
+                        <div 
+                          key={index} 
+                          className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                        >
+                          {cert}
+                          {isEditingSkills && (
+                            <button
+                              onClick={() => handleRemoveSkill(0, "certifications", true, index)}
+                              className="hover:text-purple-900"
+                            >
+                              <Cross2Icon className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
