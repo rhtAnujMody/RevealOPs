@@ -3,10 +3,11 @@ import { Input } from "@/components/ui/input";
 import { TLoginStore } from "@/lib/model";
 import useGlobalStore from "@/stores/useGlobalStore";
 import useLoginStore from "@/stores/useLoginStore";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/Logo.svg";
+import { apiRequest } from "@/network/apis";
 
 function Login() {
   const isAuthenticated = useGlobalStore((state) => state.isAuthenticated);
@@ -19,7 +20,7 @@ function Login() {
     serverError,
     setEmail,
     setPassword,
-    onSubmit,
+    onSubmit: originalOnSubmit,
   } = useLoginStore((state: TLoginStore) => ({
     isLoading: state.isLoading,
     email: state.email,
@@ -34,6 +35,44 @@ function Login() {
   }));
 
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await apiRequest<{ message: string }>(
+        "api/login/",
+        "POST",
+        {
+          email,
+          password,
+        }
+      );
+
+      if (response.ok) {
+        if (response.data?.message === "Please set your password first") {
+          navigate("/set-password", { state: { email } });
+        } else {
+          await originalOnSubmit();
+        }
+      } else {
+        if (response.error?.error) {
+          useLoginStore.setState({ serverError: response.error.error });
+        } else if (typeof response.error === 'string') {
+          useLoginStore.setState({ serverError: response.error });
+        } else {
+          useLoginStore.setState({ 
+            serverError: "An error occurred during login" 
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      useLoginStore.setState({ 
+        serverError: "An unexpected error occurred. Please try again." 
+      });
+    }
+  };
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -62,7 +101,7 @@ function Login() {
 
           <div className="mt-8">
             <div className="mt-6">
-              <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email address

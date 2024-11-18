@@ -26,7 +26,7 @@ import {
 import { Eye } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { format, isBefore, isAfter, isWithinInterval } from 'date-fns';
 
 export default function ProjectDetails() {
@@ -446,12 +446,28 @@ export default function ProjectDetails() {
                         { key: "actions", label: "Actions", className: "text-right" },
                       ]}
                       rows={paginatedResources.map((resource) => {
-                        const { id, ...rest } = resource; // Destructure to remove id
-                        return {
+                        const { id, ...rest } = resource;
+                        const rowData = {
                           ...rest,
+                          employee_name: {
+                            content: resource.employee_name,
+                            render: (
+                              <Link
+                                to={`/employees/${resource.employee}`}
+                                className="text-[#637887] hover:text-gray-900"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {resource.employee_name}
+                              </Link>
+                            )
+                          },
                           bandwidth_allocated: resource.bandwidth_allocated ? `${resource.bandwidth_allocated}%` : 'N/A',
-                          actions: renderActionButtons(resource),
+                          actions: {
+                            content: '',
+                            render: renderActionButtons(resource)
+                          }
                         };
+                        return rowData;
                       })}
                       onClick={() => { }}
                     />

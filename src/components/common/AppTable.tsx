@@ -62,13 +62,9 @@ export const AppTable = <T extends Record<string, any>>({
                   >
                     {header.key === 'actions' ? (
                       <div onClick={(e) => e.stopPropagation()}>
-                        {row[header.key]}
+                        {renderCell(row, header)}
                       </div>
-                    ) : typeof row[header.key] === "string" ? (
-                      truncateText(row[header.key])
-                    ) : (
-                      String(row[header.key])
-                    )}
+                    ) : renderCell(row, header)}
                   </TableCell>
                 ))}
               </TableRow>
@@ -114,13 +110,9 @@ export const AppTable = <T extends Record<string, any>>({
                   >
                     {header.key === 'actions' ? (
                       <div onClick={(e) => e.stopPropagation()}>
-                        {row[header.key]}
+                        {renderCell(row, header)}
                       </div>
-                    ) : typeof row[header.key] === "string" ? (
-                      truncateText(row[header.key])
-                    ) : (
-                      String(row[header.key])
-                    )}
+                    ) : renderCell(row, header)}
                   </TableCell>
                 ))}
               </TableRow>
@@ -158,13 +150,9 @@ export const AppTable = <T extends Record<string, any>>({
                   >
                     {header.key === 'actions' ? (
                       <div onClick={(e) => e.stopPropagation()}>
-                        {row[header.key]}
+                        {renderCell(row, header)}
                       </div>
-                    ) : typeof row[header.key] === "string" ? (
-                      truncateText(row[header.key])
-                    ) : (
-                      String(row[header.key])
-                    )}
+                    ) : renderCell(row, header)}
                   </TableCell>
                 ))}
               </TableRow>
@@ -174,4 +162,21 @@ export const AppTable = <T extends Record<string, any>>({
       </div>
     </div>
   );
+};
+
+const renderCell = (row: any, header: { key: string; label: string }) => {
+  const cellData = row[header.key];
+  
+  // If the cell data is an object with a render property, use that
+  if (cellData && typeof cellData === 'object' && 'render' in cellData) {
+    return cellData.render;
+  }
+  
+  // If it's a string, truncate it
+  if (typeof cellData === 'string') {
+    return truncateText(cellData);
+  }
+  
+  // For other types, convert to string
+  return cellData?.toString() || '';
 };

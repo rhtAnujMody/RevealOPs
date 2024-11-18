@@ -19,6 +19,7 @@ import AddProject from "./screens/AddProject";
 import EditProject from "./screens/EditProject";
 import EmployeesList from "./screens/EmployeesList";
 import EmployeeDetails from "@/screens/EmployeeDetails";
+import SetPassword from "@/screens/SetPassword";
 
 function App() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/set-password" element={<SetPassword />} />
         <Route element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="customers" element={<CustomerList />} />
