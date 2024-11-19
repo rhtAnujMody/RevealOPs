@@ -49,7 +49,12 @@ export default function EditResourceAllocationModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(editedResource);
+    // Create a copy of editedResource and ensure allocation_end_date is null when empty
+    const updatedResource = {
+      ...editedResource,
+      allocation_end_date: editedResource.allocation_end_date || null
+    };
+    onSave(updatedResource);
   };
 
   const handleClearEndDate = () => {
