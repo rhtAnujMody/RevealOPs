@@ -2,54 +2,56 @@ import constants from "@/lib/constants";
 import { clearLocalStorage } from "@/lib/utils";
 import useNavigationStore from "@/stores/useNavigationStore";
 
+interface ApiResponse<T = any> {
+  ok: boolean;
+  data?: T;
+  error?: any;
+}
+
 export const apiRequest = async <T>(
   endpoint: string,
-  method: string,
-  body?: any
-): Promise<{ ok: boolean; data?: T; error?: any; headers?: Record<string, string> }> => {
+  method: string = 'GET',
+  body?: any,
+  isFormData: boolean = false
+): Promise<ApiResponse<T>> => {
   try {
     const token = localStorage.getItem(constants.TOKEN);
-    const authHeaders: HeadersInit = {};
+    const headers: HeadersInit = {};
+
     if (token) {
-      authHeaders['Authorization'] = `Bearer ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
-    const response = await fetch(`${constants.API_URL}${endpoint}`, {
+
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const requestOptions: RequestInit = {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
+      headers,
+    };
 
-    if(response.status === 204) {
-      return { ok: true, data: null as T };
-    }else{
-      const data = await response.json();
-      // Get pagination headers
-      const headers: Record<string, string> = {};
-      headers['total-pages'] = response.headers.get('total-pages') || '1';
-      headers['current-page'] = response.headers.get('current-page') || '1';
+    if (body) {
+      if (isFormData) {
+        requestOptions.body = body;
+      } else {
+        requestOptions.body = JSON.stringify(body);
+      }
+    }
 
-      console.log('API Response:', { 
-        endpoint, 
-        status: response.status, 
-        data,
-        headers: headers
-      });
+    const response = await fetch(`${constants.API_URL}${endpoint}`, requestOptions);
+    const data = await response.json();
 
     return {
       ok: response.ok,
       data: response.ok ? data : undefined,
       error: !response.ok ? data : undefined,
-        headers: headers
-      };    
-    }
-
-    
-    
+    };
   } catch (error) {
     console.error('API Request Error:', error);
-    return { ok: false, error };
+    return {
+      ok: false,
+      error: 'Network error occurred',
+    };
   }
 };

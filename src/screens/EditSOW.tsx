@@ -13,10 +13,22 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, isValid, parseISO } from 'date-fns';
 
+// First, let's define a proper type for the form data
+interface SOWFormData {
+  customer: string;
+  sow_description: string;
+  sow_value: string;
+  start_date: string;
+  end_date: string | null;
+  customer_spoc: string;
+  reveal_spoc: string;
+  business_unit: string;
+}
+
 const EditSOW: React.FC = () => {
   const { sowId } = useParams<{ sowId: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SOWFormData>({
     customer: '',
     sow_description: '',
     sow_value: '',
@@ -56,9 +68,8 @@ const EditSOW: React.FC = () => {
 
   useEffect(() => {
     if (sowData) {
-      console.log('Received SOW data:', sowData);
-      
-      const newFormData = {
+      // Convert customer to string if it's a number
+      const newFormData: SOWFormData = {
         customer: sowData.customer,
         sow_description: sowData.sow_description || '',
         sow_value: sowData.sow_value || '',
@@ -69,13 +80,11 @@ const EditSOW: React.FC = () => {
         business_unit: sowData.business_unit || '',
       };
 
-      console.log('Setting form data:', newFormData);
       setFormData(newFormData);
-      // Exclude sow_id and other unnecessary fields from formData
-      const { sow_id, duration, created_at, updated_at, ...rest } = sowData;
-      setFormData(rest);
     }
   }, [sowData]);
+
+  console.log("formData: ", formData);
 
   const fetchCustomers = async () => {
     try {
@@ -121,11 +130,13 @@ const EditSOW: React.FC = () => {
 
   const validateForm = () => {
     const newErrors: Record<string, string[]> = {};
+    console.log("formData: ", formData);
     if (!formData.customer) newErrors.customer = ['Customer is required'];
     if (!formData.sow_description) newErrors.sow_description = ['SOW description is required'];
     if (!formData.sow_value) newErrors.sow_value = ['SOW value is required'];
     if (!formData.start_date) newErrors.start_date = ['Start date is required'];
     if (!formData.business_unit) newErrors.business_unit = ['Business unit is required'];
+    console.log("newErrors: ", newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -136,14 +147,27 @@ const EditSOW: React.FC = () => {
 
     const formDataToSend = new FormData();
 
-    // Append all form fields to FormData
-    Object.entries(formData).forEach(([key, value]) => {
+    // Only send modified fields
+    const fieldsToSend = [
+      'customer',
+      'sow_description',
+      'sow_value',
+      'start_date',
+      'end_date',
+      'customer_spoc',
+      'reveal_spoc',
+      'business_unit'
+    ] as const;
+
+    // Type-safe way to append form data
+    fieldsToSend.forEach(key => {
+      const value = formData[key];
       if (value !== null && value !== undefined && value !== '') {
-        formDataToSend.append(key, value.toString());
+        formDataToSend.append(key, String(value));
       }
     });
 
-    // Append the file if selected
+    // Only append the file if a new file is selected
     if (selectedFile) {
       formDataToSend.append('sow_repository', selectedFile);
     }
@@ -152,7 +176,8 @@ const EditSOW: React.FC = () => {
       const response = await apiRequest(
         constants.UPDATE_SOW.replace('{sow_id}', sowId as string),
         'PUT',
-        formDataToSend
+        formDataToSend,
+        true
       );
 
       if (response.ok) {
