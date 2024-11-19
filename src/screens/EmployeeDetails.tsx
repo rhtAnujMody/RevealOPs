@@ -518,6 +518,7 @@ export default function EmployeeDetails() {
                       <div>
                         <label className="text-sm font-medium">Category</label>
                         <Select
+                          id="categoryDropdown"
                           value={newSkill.category}
                           onValueChange={(value: string) =>
                             setNewSkill({ 
@@ -561,6 +562,7 @@ export default function EmployeeDetails() {
                           <div>
                             <label className="text-sm font-medium">Skill</label>
                             <Select
+                              id="skillDropdown"
                               value={newSkill.skill_id.toString()}
                               onValueChange={(value: string) =>
                                 setNewSkill({ ...newSkill, skill_id: parseInt(value) })
@@ -595,6 +597,7 @@ export default function EmployeeDetails() {
                           <div>
                             <label className="text-sm font-medium">Competency</label>
                             <Select
+                              id="competencyDropdown"
                               value={newSkill.competency}
                               onValueChange={(value: string) =>
                                 setNewSkill({ ...newSkill, competency: value })
