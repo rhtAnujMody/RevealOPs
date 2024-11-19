@@ -515,10 +515,10 @@ export default function EmployeeDetails() {
                       <DialogTitle>Add New Skill</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                      <div>
+                      <div id="categoryDropdown">
                         <label className="text-sm font-medium">Category</label>
                         <Select
-                          id="categoryDropdown"
+                          
                           value={newSkill.category}
                           onValueChange={(value: string) =>
                             setNewSkill({ 
@@ -559,10 +559,10 @@ export default function EmployeeDetails() {
                         </div>
                       ) : (
                         <>
-                          <div>
+                          <div id="skillDropdown">
                             <label className="text-sm font-medium">Skill</label>
                             <Select
-                              id="skillDropdown"
+                              
                               value={newSkill.skill_id.toString()}
                               onValueChange={(value: string) =>
                                 setNewSkill({ ...newSkill, skill_id: parseInt(value) })
@@ -594,10 +594,10 @@ export default function EmployeeDetails() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div>
+                          <div id="competencyDropdown">
                             <label className="text-sm font-medium">Competency</label>
                             <Select
-                              id="competencyDropdown"
+                              
                               value={newSkill.competency}
                               onValueChange={(value: string) =>
                                 setNewSkill({ ...newSkill, competency: value })
