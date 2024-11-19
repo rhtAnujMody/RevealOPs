@@ -67,7 +67,7 @@ interface TimelineItem {
   project_id: number;
   role: string;
   allocation_start_date: string;
-  allocation_end_date: string;
+  allocation_end_date: string | null;
   bandwidth_allocated: number;
   billable: string;
 }
@@ -222,9 +222,14 @@ export default function EmployeeDetails() {
     );
   };
 
-  const getStatusTag = (startDate: string, endDate: string) => {
+  const getStatusTag = (startDate: string, endDate: string | null) => {
     const now = new Date();
     const start = new Date(startDate);
+    
+    if (!endDate) {
+      return <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs font-medium">Active</span>;
+    }
+    
     const end = new Date(endDate);
 
     if (end < now) {
@@ -774,7 +779,11 @@ export default function EmployeeDetails() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <div className="text-sm text-gray-600">
-                      {format(new Date(item.allocation_start_date), 'MMM d, yyyy')} - {format(new Date(item.allocation_end_date), 'MMM d, yyyy')}
+                      {format(new Date(item.allocation_start_date), 'MMM d, yyyy')} - {
+                        item.allocation_end_date 
+                          ? format(new Date(item.allocation_end_date), 'MMM d, yyyy')
+                          : 'Present'
+                      }
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs">
