@@ -6,6 +6,7 @@ interface ApiResponse<T = any> {
   ok: boolean;
   data?: T;
   error?: any;
+  headers?: Record<string, string>;
 }
 
 export const apiRequest = async <T>(
@@ -42,10 +43,16 @@ export const apiRequest = async <T>(
     const response = await fetch(`${constants.API_URL}${endpoint}`, requestOptions);
     const data = await response.json();
 
+    // Get pagination headers
+    const responseHeaders: Record<string, string> = {};
+    responseHeaders['total-pages'] = response.headers.get('total-pages') || '1';
+    responseHeaders['current-page'] = response.headers.get('current-page') || '1';
+
     return {
       ok: response.ok,
       data: response.ok ? data : undefined,
       error: !response.ok ? data : undefined,
+      headers: responseHeaders
     };
   } catch (error) {
     console.error('API Request Error:', error);
