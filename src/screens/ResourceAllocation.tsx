@@ -25,8 +25,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import EmployeeTimelineModal from "./EmployeeTimelineModal";
 import { format, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
+import debounce from 'lodash/debounce';
 
-export default function EmployeeManagement() {
+export default function ResourceAllocation() {
   const { isLoading, data, getAllEmployees, search, setSearch, getEmployeeTimeline } = useEmployeeStore(
     (state: TEmployeeStore) => ({
       isLoading: state.isLoading,
@@ -48,10 +49,12 @@ export default function EmployeeManagement() {
   const [selectedBillable, setSelectedBillable] = useState<{ [key: number]: string }>({});
   const [checkedEmployees, setCheckedEmployees] = useState<{ [key: number]: boolean }>({});
   const [errors, setErrors] = useState<{ [key: number]: string }>({});
+  const [projectStartDate, setProjectStartDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    getAllEmployees();
-  }, [search]);
+    const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
+    getAllEmployees({ date: formattedDate, search });
+  }, [search, projectStartDate, getAllEmployees]);
 
   const handleEmployeeClick = async (employee: TEmployee) => {
     setSelectedEmployeeId(employee.id);
@@ -80,8 +83,9 @@ export default function EmployeeManagement() {
   };
 
   const handleUpdateTimeline = useCallback(() => {
-    getAllEmployees();
-  }, [getAllEmployees]);
+    const formattedDate = format(projectStartDate, 'yyyy-MM-dd');
+    getAllEmployees({ date: formattedDate, search });
+  }, [getAllEmployees, projectStartDate, search]);
 
   const BillableArray = [
     { label: 'Yes', value: 'Yes' },
@@ -170,6 +174,11 @@ export default function EmployeeManagement() {
       return;
     }
 
+    if (!projectStartDate) {
+      toast.error("Please select a project start date.");
+      return;
+    }
+
     const payload = selectedEmployees.map(employee => {
       const startDate = dates[employee.id]?.startDate;
       const endDate = dates[employee.id]?.endDate;
@@ -181,6 +190,7 @@ export default function EmployeeManagement() {
         allocation_end_date: endDate ? format(endDate, 'yyyy-MM-dd') : null,
         bandwidth_allocated: selectedBandwidth[employee.id] || null,
         billable: selectedBillable[employee.id] || null,
+        project_start_date: format(projectStartDate, 'yyyy-MM-dd'),
       };
     });
 
@@ -203,9 +213,13 @@ export default function EmployeeManagement() {
     navigate(-1); // This will go back to the previous page in the browser history
   };
 
-  // const handleUpdateTimeline = (updatedTimeline: TimelineItem[]) => {
-  //   setTimelineData(updatedTimeline);
-  // };
+  // Debounced search handler
+  const debouncedSetSearch = useCallback(
+    debounce((value: string) => {
+      setSearch(value);
+    }, 80),
+    []
+  );
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -222,17 +236,48 @@ export default function EmployeeManagement() {
           <h1 className="text-2xl font-bold text-gray-800">Allocate Resources</h1>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="w-full max-w-md relative">
-            <Input
-              id="search"
-              placeholder="Search by Name and Role"
-              className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <div className="flex justify-between items-end gap-4">
+          <div className="flex items-end gap-4 flex-1">
+            <div className="relative flex-1">
+              <label htmlFor="search" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                Search
+              </label>
+              <Input
+                id="search"
+                placeholder="Search by Name and Role"
+                className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={search}
+                onChange={(e) => debouncedSetSearch(e.target.value)}
+              />
+              <Search className="absolute left-3 top-[calc(50%+12px)] transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            </div>
+            
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="project-start-date" className="text-sm font-medium text-gray-700">
+                Select Date
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    id="project-start-date"
+                    variant="outline" 
+                    className="min-w-[200px]"
+                  >
+                    {format(projectStartDate, 'yyyy-MM-dd')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={projectStartDate}
+                    onSelect={(date) => date && setProjectStartDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
+
           <Button
             onClick={handleSubmit}
             className="bg-primary text-white hover:bg-primary/90"

@@ -2,6 +2,12 @@ import constants from "@/lib/constants";
 import { TEmployee, TEmployeeStore, TimelineItem } from "@/lib/model";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
+import { toast } from "react-hot-toast";
+
+type GetEmployeesParams = {
+  date: string;
+  search: string;
+};
 
 const useEmployeeStore = create<TEmployeeStore>((set, get) => ({
   isLoading: false,
@@ -10,19 +16,22 @@ const useEmployeeStore = create<TEmployeeStore>((set, get) => ({
   headers: [],
   search: "",
   setSearch: (search) => set({ search: search }),
-  getAllEmployees: async () => {
+  getAllEmployees: async ({ date, search }: GetEmployeesParams) => {
     set({ isLoading: true });
-    const response = await apiRequest<TEmployee[]>(
-      get().search
-        ? `${constants.ALL_EMPLOYEES}?search=${get().search}`
-        : constants.ALL_EMPLOYEES,
-      "GET"
-    );
-    if (response.ok) {
-      set({
-        isLoading: false,
-        data: response.data,
-      });
+    try {
+      const url = `${constants.ALL_EMPLOYEES}?date=${date}${search ? `&search=${search.trim()}` : ''}`;
+      const response = await apiRequest(url, 'GET');
+      if (response.ok) {
+        // const data = await response.json();
+        set({ data: response.data, isLoading: false });
+      } else {
+        set({ isLoading: false });
+        toast.error('Failed to fetch employees');
+      }
+    } catch (error) {
+      set({ isLoading: false });
+      console.error('Error fetching employees:', error);
+      toast.error('An error occurred while fetching employees');
     }
   },
   getEmployeeTimeline: async (employeeId: number) => {

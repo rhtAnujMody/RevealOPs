@@ -10,13 +10,16 @@ import SOWDetails from "./screens/SOWDetails";
 import AddSOW from "./screens/AddSOW";
 import EditSOW from "./screens/EditSOW";
 import useNavigationStore from "./stores/useNavigationStore";
-import EmployeeManagement from "./screens/EmployeeManagement";
+import ResourceAllocation from "./screens/ResourceAllocation";
 import CustomerDetails from "./screens/CustomerDetails";
 import AddCustomer from "./screens/AddCustomer";
 import { Toaster } from 'react-hot-toast';
 import EditCustomer from "./screens/EditCustomer";
 import AddProject from "./screens/AddProject";
 import EditProject from "./screens/EditProject";
+import EmployeesList from "./screens/EmployeesList";
+import EmployeeDetails from "@/screens/EmployeeDetails";
+import SetPassword from "@/screens/SetPassword";
 
 function App() {
   const navigate = useNavigate();
@@ -26,6 +29,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/set-password" element={<SetPassword />} />
         <Route element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="customers" element={<CustomerList />} />
@@ -40,7 +44,9 @@ function App() {
           <Route path="projects/add" element={<AddProject />} />
           <Route path="projects/:projectId" element={<ProjectDetails />} />
           <Route path="projects/:projectId/edit" element={<EditProject />} />
-          <Route path="projects/:projectId/resource-allocation" element={<EmployeeManagement />} />
+          <Route path="projects/:projectId/resource-allocation" element={<ResourceAllocation />} />
+          <Route path="employees" element={<EmployeesList />} />
+          <Route path="employees/:employeeId" element={<EmployeeDetails />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />

@@ -167,7 +167,7 @@ export type TResourceAllocation = {
   employee_name: string;
   allocation_percentage: number;
   start_date: string;
-  end_date: string;
+  end_date: string | null;
   bandwidth_allocated: string;
   // ... (any other fields)
 };

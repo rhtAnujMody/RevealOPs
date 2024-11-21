@@ -30,7 +30,7 @@ const useProjectStore = create<TProjectStore>()(
         set({ isLoading: true });
         const response = await apiRequest<TProjects[]>(
           get().search
-            ? `${constants.ALL_PROJECTS}?search=${get().search}&page=${page}`
+            ? `${constants.ALL_PROJECTS}?search=${get().search.trim()}&page=${page}`
             : `${constants.ALL_PROJECTS}?page=${page}`,
           "GET"
         );
