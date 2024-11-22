@@ -41,6 +41,13 @@ export const apiRequest = async <T>(
     }
 
     const response = await fetch(`${constants.API_URL}${endpoint}`, requestOptions);
+    if (response.status == 204) {
+      return {
+        ok: true,
+        data: null,
+        headers: {}
+      };
+    }
     const data = await response.json();
 
     // Get pagination headers
