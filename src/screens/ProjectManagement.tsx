@@ -1,5 +1,6 @@
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TProjects, TProjectStore } from "@/lib/model";
 import useProjectStore from "@/stores/useProjectStore";
 import { PlusCircle, RefreshCw, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -10,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function ProjectManagement() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoading, headers, data, search, setSearch, getAllProjects, clearSearch, currentPage, totalPages, setCurrentPage } =
+  const { isLoading, headers, data, search, setSearch, getAllProjects, clearSearch, currentPage, totalPages, setCurrentPage, projectStatus, setProjectStatus } =
     useProjectStore((state: TProjectStore) => ({
       isLoading: state.isLoading,
       data: state.data,
@@ -22,6 +23,8 @@ export default function ProjectManagement() {
       currentPage: state.currentPage,
       totalPages: state.totalPages,
       setCurrentPage: state.setCurrentPage,
+      projectStatus: state.projectStatus,
+      setProjectStatus: state.setProjectStatus,
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
@@ -30,6 +33,8 @@ export default function ProjectManagement() {
     const searchParams = new URLSearchParams(location.search);
     const searchValue = searchParams.get('search');
     const page = searchParams.get('page');
+    const status = searchParams.get('project_status');
+    
     if (searchValue) {
       setSearch(searchValue);
       setLocalSearch(searchValue);
@@ -40,12 +45,15 @@ export default function ProjectManagement() {
     if (page) {
       setCurrentPage(parseInt(page));
     }
+    if (status) {
+      setProjectStatus(status);
+    }
     getAllProjects(currentPage);
   }, [location.search]);
 
   useEffect(() => {
     getAllProjects(currentPage);
-  }, [search, currentPage]);
+  }, [search, currentPage, projectStatus]);
 
   useEffect(() => {
     console.log("Current page:", currentPage);
@@ -80,6 +88,12 @@ export default function ProjectManagement() {
     getAllProjects(1);
   };
 
+  const handleStatusChange = (value: string) => {
+    setProjectStatus(value);
+    setCurrentPage(1);
+    getAllProjects(1);
+  };
+
   const formattedHeaders = headers.map(header => ({
     key: header.key,
     label: header.value
@@ -97,23 +111,36 @@ export default function ProjectManagement() {
         </Button>
       </div>
 
-      <div className="w-full max-w-md relative">
-        <Input
-          id="search"
-          placeholder="Search"
-          className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={localSearch}
-          onChange={handleSearchChange}
-        />
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-        {localSearch && (
-          <button
-            onClick={handleClearSearch}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+      <div className="flex gap-4 items-center">
+        <div className="w-full max-w-md relative">
+          <Input
+            id="search"
+            placeholder="Search"
+            className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={localSearch}
+            onChange={handleSearchChange}
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          {localSearch && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+        
+        <Select value={projectStatus} onValueChange={handleStatusChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Projects</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {isLoading ? (
