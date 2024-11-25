@@ -26,13 +26,17 @@ const useProjectStore = create<TProjectStore>()(
       clearSearch: () => set({ search: "", currentPage: 1 }),
       setCurrentPage: (page: number) => set({ currentPage: page }),
       setTotalPages: (pages: number) => set({ totalPages: pages }),
+      projectStatus: 'all',
+      setProjectStatus: (status) => set({ projectStatus: status }),
       getAllProjects: async (page: number = 1) => {
         set({ isLoading: true });
+        const searchParams = new URLSearchParams();
+        if (get().search) searchParams.set('search', get().search);
+        if (get().projectStatus !== 'all') searchParams.set('project_status', get().projectStatus);
+        searchParams.set('page', page.toString());
+        
         const response = await apiRequest<TProjects[]>(
-          get().search
-            ? `${constants.ALL_PROJECTS}?search=${get().search.trim()}&page=${page}`
-            : `${constants.ALL_PROJECTS}?page=${page}`,
-          "GET"
+          `${constants.ALL_PROJECTS}?${searchParams.toString()}`
         );
         if (response.ok) {
           const totalPages = parseInt(response.headers['total-pages'] || '1');
