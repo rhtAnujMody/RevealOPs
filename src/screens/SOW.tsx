@@ -1,4 +1,3 @@
-
 import { AppTable } from "@/components/common/AppTable";
 import { Input } from "@/components/ui/input";
 import { TSOW, TSOWStore } from "@/lib/model";
@@ -9,7 +8,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
 import { convertDaysToWeeks } from "@/lib/utils";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SOW() {
   const location = useLocation();
@@ -29,11 +34,14 @@ export default function SOW() {
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
+  const [statusFilter, setStatusFilter] = useState<string>('');
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchValue = searchParams.get('search');
     const page = searchParams.get('page');
+    const status = searchParams.get('status');
+    
     if (searchValue) {
       setSearch(searchValue);
       setLocalSearch(searchValue);
@@ -44,12 +52,15 @@ export default function SOW() {
     if (page) {
       setCurrentPage(parseInt(page));
     }
-    getAllSOW(currentPage);
+    if (status) {
+      setStatusFilter(status);
+    }
+    getAllSOW(currentPage, searchValue || '', status || '');
   }, [location.search]);
 
   useEffect(() => {
-    getAllSOW(currentPage);
-  }, [search, currentPage]);
+    getAllSOW(currentPage, search, statusFilter);
+  }, [search, currentPage, statusFilter]);
 
   // Debug log
   useEffect(() => {
@@ -70,7 +81,12 @@ export default function SOW() {
     setLocalSearch("");
     setSearch("");
     setCurrentPage(1);
-    getAllSOW(1);
+    
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.delete('search');
+    searchParams.set('page', '1');
+    searchParams.set('status', statusFilter);
+    navigate(`?${searchParams.toString()}`);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,15 +94,34 @@ export default function SOW() {
     setLocalSearch(value);
     setSearch(value);
     setCurrentPage(1);
-    getAllSOW(1);
+    
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('search', value);
+    searchParams.set('page', '1');
+    searchParams.set('status', statusFilter);
+    navigate(`?${searchParams.toString()}`);
   };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    getAllSOW(newPage);
+    
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('page', newPage.toString());
+    if (search) searchParams.set('search', search);
+    searchParams.set('status', statusFilter);
+    navigate(`?${searchParams.toString()}`);
   };
 
-  const formattedHeaders = headers.map(header => ({
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('status', value);
+    searchParams.set('page', '1');
+    navigate(`?${searchParams.toString()}`);
+  };
+
+  const formattedHeaders = [...headers, { key: 'status', value: 'Status' }].map(header => ({
     key: header.key,
     label: header.value
   }));
@@ -103,23 +138,35 @@ export default function SOW() {
         </Button>
       </div>
 
-      <div className="w-full max-w-md relative">
-        <Input
-          id="search"
-          placeholder="Search"
-          className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={localSearch}
-          onChange={handleSearchChange}
-        />
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-        {localSearch && (
-          <button
-            onClick={handleClearSearch}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
+      <div className="flex gap-4 items-center">
+        <div className="w-full max-w-md relative">
+          <Input
+            id="search"
+            placeholder="Search"
+            className="pl-10 pr-10 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={localSearch}
+            onChange={handleSearchChange}
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          {localSearch && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+        
+        <Select value={statusFilter} onValueChange={handleStatusChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {isLoading ? (
@@ -135,7 +182,8 @@ export default function SOW() {
                   headers={formattedHeaders}
                   rows={data.map(item => ({
                     ...item,
-                    duration: typeof item.duration === 'number' ? convertDaysToWeeks(item.duration) : 'N/A'
+                    duration: typeof item.duration === 'number' ? convertDaysToWeeks(item.duration) : 'N/A',
+                    status: 'Active'
                   }))}
                   onClick={handleOnClick}
                 />

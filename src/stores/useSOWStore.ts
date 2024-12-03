@@ -2,6 +2,7 @@ import constants from "@/lib/constants";
 import { TSOW, TSOWStore } from "@/lib/model";
 import { apiRequest } from "@/network/apis";
 import { create } from "zustand";
+import axios from "axios";
 
 const useSOWStore = create<TSOWStore>((set, get) => ({
   isLoading: false,
@@ -23,29 +24,22 @@ const useSOWStore = create<TSOWStore>((set, get) => ({
   clearSearch: () => set({ search: "" }),
   setCurrentPage: (page: number) => set({ currentPage: page }),
   setTotalPages: (pages: number) => set({ totalPages: pages }),
-  getAllSOW: async (page: number) => {
+  getAllSOW: async (page: number, search?: string, status?: string) => {
     set({ isLoading: true });
     try {
-      const response = await apiRequest<TSOW[]>(
-        `${constants.ALL_SOWS}?page=${page}${get().search ? `&search=${get().search.trim()}` : ''}`,
-        "GET"
-      );
-      console.log("API Response Headers:", response.headers);
-      if (response.data) {
-        const totalPages = parseInt(response.headers['total-pages'] || '1');
-        set({
-          data: response.data,
-          currentPage: page,
-          totalPages: totalPages,
-        });
-        console.log("Updated state:", { currentPage: page, totalPages: totalPages });
-      } else {
-        console.error("Failed to fetch SOWs: No data received");
-        set({ data: [], totalPages: 1 });
-      }
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      
+      const response = await axios.get(`/api/sows?${params.toString()}`);
+      set({ 
+        data: response.data.data,
+        totalPages: response.data.totalPages,
+        currentPage: page
+      });
     } catch (error) {
-      console.error("Error fetching SOWs:", error);
-      set({ data: [], totalPages: 1 });
+      console.error('Error fetching SOWs:', error);
     } finally {
       set({ isLoading: false });
     }

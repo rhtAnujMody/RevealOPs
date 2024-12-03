@@ -20,6 +20,8 @@ import EditProject from "./screens/EditProject";
 import EmployeesList from "./screens/EmployeesList";
 import EmployeeDetails from "@/screens/EmployeeDetails";
 import SetPassword from "@/screens/SetPassword";
+import Recruitment from "./screens/Recruitment";
+import Compliances from "./screens/Complainces";
 
 function App() {
   const navigate = useNavigate();
@@ -47,6 +49,8 @@ function App() {
           <Route path="projects/:projectId/resource-allocation" element={<ResourceAllocation />} />
           <Route path="employees" element={<EmployeesList />} />
           <Route path="employees/:employeeId" element={<EmployeeDetails />} />
+          <Route path="recruitment" element={<Recruitment />} />
+          <Route path="compliances" element={<Compliances />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />

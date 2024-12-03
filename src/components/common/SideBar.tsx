@@ -7,7 +7,9 @@ import {
   Users,
   FileText,
   Briefcase,
-  BookUser
+  BookUser,
+  Airplay,
+  ShieldCheck
 } from "lucide-react";
 
 export default function SideBar() {
@@ -50,6 +52,16 @@ export default function SideBar() {
       link: "/employees",
       header: "Employees",
       icon: BookUser,
+    },
+    {
+      link: "/recruitment",
+      header: "Recruitment",
+      icon: Airplay,
+    },
+    {
+      link: "/compliances",
+      header: "Compliances",
+      icon: ShieldCheck,
     },
   ];
 
