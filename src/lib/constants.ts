@@ -24,4 +24,5 @@ export default {
   EMPLOYEE_SKILLS_ADD: `${API_URL}api/employee-skills/{employee_id}/add_skill/`,
   EMPLOYEE_SKILLS_REMOVE: `${API_URL}api/employee-skills/{employee_id}/remove_skill/`,
   SKILLS: "api/skills/",
+  RECRUITMENT_REQUESTS: "api/recruitment-requests",
 };
