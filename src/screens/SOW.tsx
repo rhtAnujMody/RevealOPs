@@ -19,7 +19,7 @@ import {
 export default function SOW() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoading, headers, data, search, setSearch, getAllSOW, clearSearch, currentPage, totalPages, setCurrentPage } =
+  const { isLoading, headers, data, search, setSearch, getAllSOW, clearSearch, currentPage, totalPages, setCurrentPage, status, setStatus, clearStatus } =
     useSOWStore((state: TSOWStore) => ({
       isLoading: state.isLoading,
       data: state.data,
@@ -31,6 +31,9 @@ export default function SOW() {
       currentPage: state.currentPage,
       totalPages: state.totalPages,
       setCurrentPage: state.setCurrentPage,
+      status: state.status,
+      setStatus: state.setStatus,
+      clearStatus: state.clearStatus,
     }));
 
   const [localSearch, setLocalSearch] = useState(search);
@@ -113,6 +116,7 @@ export default function SOW() {
   };
 
   const handleStatusChange = (value: string) => {
+    setStatus(value);
     setStatusFilter(value);
     setCurrentPage(1);
     const searchParams = new URLSearchParams(location.search);

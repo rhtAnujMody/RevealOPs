@@ -81,9 +81,10 @@ export type TCustomerStore = {
 
 export type TSOWStore = {
   isLoading: boolean;
-  headers: Record<string, string>[];
+  headers: { key: string; value: string }[];
   data: TSOW[];
   search: string;
+  status: string;
   currentPage: number;
   totalPages: number;
   setLoading: (isLoading: boolean) => void;
@@ -91,6 +92,8 @@ export type TSOWStore = {
   clearSearch: () => void;
   setCurrentPage: (page: number) => void;
   setTotalPages: (pages: number) => void;
+  setStatus: (status: string) => void;
+  clearStatus: () => void;
   getAllSOW: (page: number) => Promise<void>;
 } & TLoadingState;
 

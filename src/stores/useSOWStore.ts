@@ -18,32 +18,50 @@ const useSOWStore = create<TSOWStore>((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
   data: [],
   search: "",
+  status: "",
   currentPage: 1,
   totalPages: 1,
   setSearch: (search) => set({ search }),
   clearSearch: () => set({ search: "" }),
   setCurrentPage: (page: number) => set({ currentPage: page }),
   setTotalPages: (pages: number) => set({ totalPages: pages }),
-  getAllSOW: async (page: number, search?: string, status?: string) => {
+  setStatus: (status: string) => set({ status }),
+  clearStatus: () => set({ status: "" }),
+  getAllSOW: async (page: number) => {
     set({ isLoading: true });
     try {
-      const params = new URLSearchParams();
-      params.append('page', page.toString());
-      if (search) params.append('search', search);
-      if (status) params.append('status', status);
-      
-      const response = await axios.get(`/api/sows?${params.toString()}`);
-      set({ 
-        data: response.data.data,
-        totalPages: response.data.totalPages,
-        currentPage: page
+      const currentState = get();
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        ...(currentState.search && { search: currentState.search.trim() }),
+        ...(currentState.status && { status: currentState.status })
       });
+
+      const response = await apiRequest<TSOW[]>(
+        `${constants.ALL_SOWS}?${queryParams.toString()}`,
+        "GET"
+      );
+
+      const headers = response.headers as { [key: string]: string };
+      const totalPages = parseInt(headers['total-pages'] || '1');
+      
+      if (response.data) {
+        set({
+          data: response.data,
+          currentPage: page,
+          totalPages: totalPages,
+        });
+        console.log("Updated state:", { currentPage: page, totalPages: totalPages });
+      } else {
+        console.error("Failed to fetch SOWs: No data received");
+        set({ data: [], totalPages: 1 });
+      }
     } catch (error) {
-      console.error('Error fetching SOWs:', error);
+      console.error("Error fetching SOWs:", error);
+      set({ data: [], totalPages: 1 });
     } finally {
       set({ isLoading: false });
     }
   },
 }));
-
 export default useSOWStore;
