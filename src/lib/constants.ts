@@ -1,4 +1,4 @@
-const API_URL = "http://ec2-3-110-55-32.ap-south-1.compute.amazonaws.com/";
+const API_URL = "http://ec2-52-66-179-125.ap-south-1.compute.amazonaws.com:8000/";
 
 export default {
   API_URL,
