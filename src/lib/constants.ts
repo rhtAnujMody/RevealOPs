@@ -1,4 +1,4 @@
-const API_URL = "http://ec2-13-232-62-250.ap-south-1.compute.amazonaws.com:8000/";
+const API_URL = "https://api.revealhealthtech.com/";
 
 export default {
   API_URL,
