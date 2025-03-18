@@ -1,6 +1,6 @@
 export const supersetConfig = {
     supersetUrl: 'https://superset.revealhealthtech.com/',
-    dashboardId: 'b4f32e04-a9d9-4079-a0c1-30f0c678c9e9',
+    dashboardId: '309250b1-1fe1-4316-bf32-c56b9d49d54f',
     username: 'admin',
     password: 'admin',
     guestUsername: 'GuestUser',
